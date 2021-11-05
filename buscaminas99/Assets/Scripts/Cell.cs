@@ -18,21 +18,21 @@ public class Cell : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(1))
-        {
-            OnRightClick();
-        }
+       
     }
 
     private void OnMouseDown()
     {
         Destroy(gameObject);
-        Debug.Log("Se ha de borrado");
+       // Debug.Log("Se ha de borrado");
     }
-    void OnRightClick()
+    private void OnMouseOver()
     {
-
-        Debug.Log("right clicked");
-        Instantiate<GameObject>(flag, transform.position, transform.rotation);
+        if (Input.GetMouseButtonDown(1))
+        {
+            Instantiate<GameObject>(flag, gameObject.transform.position, transform.rotation);
+        }
     }
+
+    
 }
