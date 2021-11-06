@@ -7,11 +7,13 @@ public class Cell : MonoBehaviour
 
     private GameObject cell;
     public GameObject flag;
+    private GameManager gameManager;
 
     // Start is called before the first frame update
     void Start()
     {
         //cell = GameObject.Find("Cell");
+        
        
     }
 
@@ -24,7 +26,15 @@ public class Cell : MonoBehaviour
     private void OnMouseDown()
     {
         Destroy(gameObject);
-       // Debug.Log("Se ha de borrado");
+        if (gameManager.BombExists(gameObject.transform.position))
+        {
+            Debug.Log("GameOver, te has murido muy fuerte");
+        }
+        else
+        {
+            Debug.Log("No GameOver, No te has murido muy fuerte");
+        }
+        
     }
     private void OnMouseOver()
     {
