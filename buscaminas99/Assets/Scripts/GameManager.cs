@@ -144,22 +144,18 @@ public class GameManager : MonoBehaviour
     //compueba si existen bombas en una posicion indicada
     public bool BombExists(Vector3 posicion)
     {
-        // x +25 lo que me de /5
-        // y -25 lo que me de /5
-        Debug.Log(posicion);
+        
         posicion.x += 25;
         posicion.y -= 25;
 
         posicion.y = Math.Abs(posicion.y);
+        posicion.x = Math.Abs(posicion.x);
 
         posicion.x /= 5;
         posicion.y /= 5;
 
        
         int id =(int)( posicion.x * columnNumber + posicion.y);
-
-        Debug.Log("La coordenada x es: " + posicion.x + " La coordenada y es: " + posicion.y);
-        Debug.Log("El id es: " + id);
 
         if (bombs.Contains(id))
         {

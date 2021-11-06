@@ -12,7 +12,7 @@ public class Cell : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //cell = GameObject.Find("Cell");
+        
         gameManager = FindObjectOfType<GameManager>();
        
     }
