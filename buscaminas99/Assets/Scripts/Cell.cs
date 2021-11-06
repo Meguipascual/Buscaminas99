@@ -13,7 +13,7 @@ public class Cell : MonoBehaviour
     void Start()
     {
         //cell = GameObject.Find("Cell");
-        
+        gameManager = FindObjectOfType<GameManager>();
        
     }
 
@@ -32,7 +32,7 @@ public class Cell : MonoBehaviour
         }
         else
         {
-            Debug.Log("No GameOver, No te has murido muy fuerte");
+            Debug.Log("U are aive");
         }
         
     }

@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
 
 public class GameManager : MonoBehaviour
 {
 
     public GameObject cell;
     public GameObject bomb;
-    public int bombsNumber = 18;
-    private int columnNumber = 11;
-    List<int> bombs = new List<int>();
+    public int bombsNumber = 18;//cantidad de bombas a crear
+    private int columnNumber = 11;//tamaño del tablero
+    List<int> bombs = new List<int>();//la lista de ids de bombas en tablero
 
     // Start is called before the first frame update
     void Start()
@@ -25,14 +27,13 @@ public class GameManager : MonoBehaviour
     {
         
     }
-   
-    
 
+
+    /*Genera las celdas en todo el tablero, podria existir la variable 
+        numeroFilas en caso de gestionar tableros rectangulares*/
     void GenerateCells()
     {
-        /*Genera las celdas en todo el tablero, podria existir la variable numeroColumnas 
-         para definir una cantidad variable de columnas a rellenar siendo cuadrado o incluso otra variable 
-        numeroFilas en caso de gestionar tableros rectangulares*/
+        
 
         Vector3 pos = new Vector3(-25, 25, -0.4f);
         Vector3 incrementoX = new Vector3(5,0,0);
@@ -93,13 +94,16 @@ public class GameManager : MonoBehaviour
         }
         
     }
+
+    /*las posiciones van de 5 en 5, este metodo se ocupa de convertir la id en coordenadas
+    multiplicarlas por 5 y sumarlas o restarlas a la posicion de la coordenada 0,0*/
     public Vector3 GeneratePosition(int id)
     {
-        //las posiciones van de 5 en 5 este metodo se ocupa de convertir la id en coordenadas multiplicarlas por 5 y sumarla o restarla a la posicion de la coordenada 0,0
+        
 
         Vector3 posicion = new Vector3(-25, 25);
-        int y = id / columnNumber;
-        int x = id % columnNumber;
+        int x = id / columnNumber;
+        int y = id % columnNumber;
 
         Debug.Log("y es igual a : " + y);
         Debug.Log("x es igual a : " + x);
@@ -112,15 +116,17 @@ public class GameManager : MonoBehaviour
 
         return posicion;
     }
+
+    //Randomiza la lista, un poco
     public void Shuffle<T>(List<T> list)
     {
-        //Randomiza la lista, un poco
+        
 
         int n = list.Count;
         while (n > 1)
         {
-            int rng = Random.Range(0, columnNumber);
-            int rng2 = Random.Range(0, columnNumber);
+            int rng = UnityEngine.Random.Range(0, columnNumber);
+            int rng2 = UnityEngine.Random.Range(0, columnNumber);
 
 
 
@@ -134,10 +140,26 @@ public class GameManager : MonoBehaviour
             list[n] = value;
         }
     }
+
+    //compueba si existen bombas en una posicion indicada
     public bool BombExists(Vector3 posicion)
     {
+        // x +25 lo que me de /5
+        // y -25 lo que me de /5
+        Debug.Log(posicion);
+        posicion.x += 25;
+        posicion.y -= 25;
 
+        posicion.y = Math.Abs(posicion.y);
+
+        posicion.x /= 5;
+        posicion.y /= 5;
+
+       
         int id =(int)( posicion.x * columnNumber + posicion.y);
+
+        Debug.Log("La coordenada x es: " + posicion.x + " La coordenada y es: " + posicion.y);
+        Debug.Log("El id es: " + id);
 
         if (bombs.Contains(id))
         {
