@@ -11,7 +11,9 @@ public class GameManager : MonoBehaviour
     public GameObject bomb;
     public int bombsNumber = 18;//cantidad de bombas a crear
     private int columnNumber = 11;//tamaño del tablero
+    private bool alive = true;
     List<int> bombs = new List<int>();//la lista de ids de bombas en tablero
+
 
     // Start is called before the first frame update
     void Start()
@@ -165,5 +167,13 @@ public class GameManager : MonoBehaviour
         {
             return false;
         }
+    }
+    public bool GetAlive()
+    {
+        return alive;
+    }
+    public void SetAlive(bool live)
+    {
+        alive = live;
     }
 }
