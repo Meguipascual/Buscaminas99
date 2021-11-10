@@ -8,12 +8,14 @@ public class Cell : MonoBehaviour
     private GameObject cell;
     public GameObject flag;
     private GameManager gameManager;
+    public GameObject number;
 
     // Start is called before the first frame update
     void Start()
     {
         
         gameManager = FindObjectOfType<GameManager>();
+        number = GetComponent<GameObject>();
        
     }
 
