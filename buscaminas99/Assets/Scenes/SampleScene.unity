@@ -610,7 +610,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cell: {fileID: 5340278362646127976, guid: 17971c9d7d093fb47a25918958c6d3c9, type: 3}
   bomb: {fileID: 1127531630797208110, guid: ea3c355f5945b7342899fac483032506, type: 3}
-  bombsNumber: 18
+  bombsNumber: 20
 --- !u!4 &2028701471
 Transform:
   m_ObjectHideFlags: 0

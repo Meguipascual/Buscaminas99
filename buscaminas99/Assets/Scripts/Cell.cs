@@ -9,19 +9,25 @@ public class Cell : MonoBehaviour
     public GameObject flag;
     private GameManager gameManager;
     public TextMesh number;
-    int numero = 0;
-    bool alive ;
+    private int num = 0;
+    private Vector3[] variations=new Vector3 [8];
+
 
     // Start is called before the first frame update
     void Start()
     {
         
+        variations[0] = new Vector3(-5, 0);
+        variations[1] = new Vector3(-5, 5);
+        variations[2] = new Vector3(-5, -5);
+        variations[3] = new Vector3(0, -5);
+        variations[4] = new Vector3(0, 5);
+        variations[5] = new Vector3(5, -5);
+        variations[6] = new Vector3(5, 0);
+        variations[7] = new Vector3(5, 5);
+
         gameManager = FindObjectOfType<GameManager>();
-        //number = GameObject.Find("Number").GetComponent<TextMesh>();
-        //number = GameObject.Find("Number").GetComponentInChildren<TextMesh>();
-        
-        
-       
+        BombsNear(transform.position);
     }
 
     // Update is called once per frame
@@ -32,8 +38,8 @@ public class Cell : MonoBehaviour
 
     private void OnMouseDown()
     {
-        alive = gameManager.GetAlive();
-        if (alive)
+        
+        if (gameManager.GetAlive())
         {
             Destroy(gameObject);
             if (gameManager.BombExists(gameObject.transform.position))
@@ -43,7 +49,7 @@ public class Cell : MonoBehaviour
             }
             else
             {
-                Debug.Log("U are aive");
+                Debug.Log("It's aliiiiiiiive");
             }
         }
         
@@ -55,15 +61,54 @@ public class Cell : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1)) 
         {
-            alive = gameManager.GetAlive();
 
-            if (alive)
+            if (gameManager.GetAlive())
             {
                 Instantiate<GameObject>(flag, gameObject.transform.position, transform.rotation);
+                //controlar que solo se pueda crear una flag haciendo que si le vuelve a dar la elimine en vez de crear otra
                 number.text = "2";
             }
             
         }
+    }
+
+    private void BombsNear(Vector3 position)
+    {
+
+
+
+
+        if (!gameManager.BombExists(position))
+        {
+
+            for (int i = 0; i < 8; i++)
+            {
+                float auxX = position.x + variations[i].x;
+                float auxY = position.y + variations[i].y;
+                if ((auxX >= -25 && auxX <= 25)&& (auxY >= -25 && auxY <= 25))
+                {
+                    if (gameManager.BombExists(position + variations[i]))
+                    {
+                        num++;
+                    }
+                }
+
+                
+
+
+            }
+            number.text = num.ToString();
+
+        }
+        else
+        {
+            number.text = "B";
+        }
+
+
+        
+        
+        
     }
 
     
