@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     private int columnNumber = 11;//tamaño del tablero
     private bool alive = true;
     List<int> bombs = new List<int>();//la lista de ids de bombas en tablero
+    Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();
 
 
     // Start is called before the first frame update
@@ -30,6 +31,16 @@ public class GameManager : MonoBehaviour
         
     }
 
+    public void RegisterCell(Cell cell)
+    {
+        
+        cellById[cell.Id] = cell;
+    }
+
+    public Cell GetCell (int cellId)
+    {
+        return cellById[cellId];
+    }
 
     /*Genera las celdas en todo el tablero, podria existir la variable 
         numeroFilas en caso de gestionar tableros rectangulares*/
@@ -41,6 +52,7 @@ public class GameManager : MonoBehaviour
         Vector3 incrementoX = new Vector3(5,0,0);
         Vector3 decrementoY = new Vector3(0,5,0);
         float posXInincial = -25f;
+
 
         for (int i =0; i < columnNumber; i++)
         {
@@ -68,7 +80,7 @@ public class GameManager : MonoBehaviour
         {
             for (int j = 0; j < columnNumber; j++)
             {
-                ids.Add(i * columnNumber + j);
+                ids.Add(GenerateId(i,j));
             }
         }
 
@@ -82,7 +94,7 @@ public class GameManager : MonoBehaviour
         //generamos una cantidad de bombas definida por bombsAmount
         for (int j = 0; j < bombsAmount; j++)
         {
-            Debug.Log(ids[j]);
+            //Debug.Log(ids[j]);
 
             //añadimos las bombas que creamos a una lista de bombas para poder comprobar donde estan todas nuestras bombas
             bombs.Add(ids[j]);
@@ -107,8 +119,8 @@ public class GameManager : MonoBehaviour
         int x = id / columnNumber;
         int y = id % columnNumber;
 
-        Debug.Log("y es igual a : " + y);
-        Debug.Log("x es igual a : " + x);
+        //Debug.Log("y es igual a : " + y);
+        //Debug.Log("x es igual a : " + x);
 
 
         x *= 5;
@@ -146,18 +158,8 @@ public class GameManager : MonoBehaviour
     //compueba si existen bombas en una posicion indicada
     public bool BombExists(Vector3 posicion)
     {
-        
-        posicion.x += 25;
-        posicion.y -= 25;
 
-        posicion.y = Math.Abs(posicion.y);
-        posicion.x = Math.Abs(posicion.x);
-
-        posicion.x /= 5;
-        posicion.y /= 5;
-
-       
-        int id =(int)( posicion.x * columnNumber + posicion.y);
+        int id =GenerateId(posicion);
 
         if (bombs.Contains(id))
         {
@@ -175,5 +177,31 @@ public class GameManager : MonoBehaviour
     public void SetAlive(bool live)
     {
         alive = live;
+    }
+
+    //Genera un id a partir de unas coordenadas x, y  
+    public int GenerateId(int x, int y)
+    {
+        int id= x * columnNumber + y;
+
+
+        return id;
+    }
+
+    //Generan un id a partir de una posicion
+    public int GenerateId(Vector3 position)
+    {
+        position.x += 25;
+        position.y -= 25;
+
+        position.y = Math.Abs(position.y);
+        position.x = Math.Abs(position.x);
+
+        position.x /= 5;
+        position.y /= 5;
+
+        int id = (int)(position.x * columnNumber + position.y);
+        
+        return id;
     }
 }
