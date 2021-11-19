@@ -8,91 +8,59 @@ public class Cell : MonoBehaviour
     private GameManager gameManager;
     public TextMesh number;
     private int id;
-    //private TextMesh number2;
     private int num = 0;
-    private Vector3[] variations=new Vector3 [8];
+    private Vector3[] variations = new Vector3[8];
 
     public int Id => id;
 
     // Start is called before the first frame update
     void Start()
     {
-        
         FillVariations();
         gameManager = FindObjectOfType<GameManager>();
         id = gameManager.GenerateId(gameObject.transform.position);
         gameManager.RegisterCell(this);
-        BombsNear(gameObject.transform.position);
-        
-        
+        DisplayBombsNear(gameObject.transform.position);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-
-    // destruye la celda pulsada 
+    /// <summary>
+    /// Destroys the clicked cell
+    /// </summary>
     private void OnMouseDown()
     {
-        
-        if (gameManager.GetAlive())
+        if (gameManager.IsPlayerAlive)
         {
             Destroy(gameObject);
-
-            if (gameManager.BombExists(gameObject.transform.position))
+            if (gameManager.BombExists(gameObject.transform.position)) 
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
-                gameManager.SetAlive(false);
+                gameManager.IsPlayerAlive = false;
             }
             else
             {
                 Debug.Log("It's aliiiiiiiive");
-                ////////
-                ///
-                /*
-                for (int i = 0; i < 8; i++)
-                {
-                    float auxX = transform.position.x + variations[i].x;
-                    float auxY = transform.position.y + variations[i].y;
-                    if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25) )
-                    {
-
-                        BombsNear(transform.position + variations[i]);
-                        
-                    }
-                    
-                }*/
-                ////////
-                ///
-                
             }
         }
-        
-        
     }
 
-    //coloca flags al hacer click derecho
+    /// <summary>
+    /// Puts or removes flags when right click
+    /// </summary>
     private void OnMouseOver()
     {
-        
-
         if (Input.GetMouseButtonDown(1)) 
         {
-
-            if (gameManager.GetAlive())
+            if (gameManager.IsPlayerAlive)
             {
-                Instantiate<GameObject>(flag, gameObject.transform.position, transform.rotation);
+                Instantiate(flag, gameObject.transform.position, transform.rotation);
                 //controlar que solo se pueda crear una flag haciendo que si le vuelve a dar la elimine en vez de crear otra
-               
             }
-            
         }
     }
 
-    //Rellena las variaciones de posicion necesarias para BombsNear
+    /// <summary>
+    /// Fills the variations of position needed by DisplayBombsNear
+    /// </summary>
     private void FillVariations()
     {
         variations[0] = new Vector3(-5, 0);
@@ -105,34 +73,27 @@ public class Cell : MonoBehaviour
         variations[7] = new Vector3(5, 5);
     }
 
-    //muestra en la celda en cuestion el numero de bombas que le rodean
-    private void BombsNear(Vector3 position)
+    /// <summary>
+    /// Displays a number that represents how many bombs are nearby
+    /// </summary>
+    /// <param name="position"></param>
+    private void DisplayBombsNear(Vector3 position)
     {
-
-
-        
-
-        if (!gameManager.BombExists(position))
+        if (gameManager.BombExists(position))
         {
-
-            for (int i = 0; i < 8; i++)
+            return;
+        }
+        for (int i = 0; i < 8; i++) 
+        {
+            var auxX = position.x + variations[i].x;
+            var auxY = position.y + variations[i].y;
+            if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25) && gameManager.BombExists(position + variations[i])) 
             {
-                float auxX = position.x + variations[i].x;
-                float auxY = position.y + variations[i].y;
-                if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25) && gameManager.BombExists(position + variations[i])) 
-                {
-                  
-                    num++;
-                    
-                }
-
+                num++;
             }
-            //number.text = id.ToString();
-            //Debug.Log(id);
-            number.text = num.ToString();
-            number.gameObject.SetActive(true);
-
-        }  
+        }
+        number.text = num.ToString();
+        number.gameObject.SetActive(true);
     }
 
     public void ModifyById(int sentId)

@@ -7,33 +7,31 @@ using System;
 public class GameManager : MonoBehaviour
 {
 
-    public GameObject cell;
-    public GameObject bomb;
-    public int bombsNumber = 18;//cantidad de bombas a crear
-    private int columnNumber = 11;//tamaño del tablero
-    private bool alive = true;
-    List<int> bombs = new List<int>();//la lista de ids de bombas en tablero
+    public Cell cellPrefab;
+    public Bomb bombPrefab;
+    [SerializeField] private readonly int bombsNumber = 18;//Amount of bombs to create
+    private int numberOfColumns = 11;//Table columns
+    private int numberOfRows = 11;//Table rows
+    private bool isPlayerAlive = true;
+    List<int> bombs = new List<int>();//Ids' list that have a bomb 
+    List<int> allIds = new List<int>();//List of all ids 
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();
 
+    public bool IsPlayerAlive
+    { 
+        get => isPlayerAlive; 
+        set => isPlayerAlive = value;
+    } 
 
     // Start is called before the first frame update
     void Start()
     {
         GenerateCells();
         GenerateBombs(bombsNumber);
-        
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void RegisterCell(Cell cell)
     {
-        
         cellById[cell.Id] = cell;
     }
 
@@ -42,28 +40,24 @@ public class GameManager : MonoBehaviour
         return cellById[cellId];
     }
 
-    /*Genera las celdas en todo el tablero, podria existir la variable 
-        numeroFilas en caso de gestionar tableros rectangulares*/
+    //Generates cells all over the table
     void GenerateCells()
     {
-        
+        var initialPosition = new Vector3(-25, 25, -0.4f);
+        var incrementX = new Vector3(5,0,0);
+        var decrementY = new Vector3(0,5,0);
+        var initialPosX = -25f;
 
-        Vector3 pos = new Vector3(-25, 25, -0.4f);
-        Vector3 incrementoX = new Vector3(5,0,0);
-        Vector3 decrementoY = new Vector3(0,5,0);
-        float posXInincial = -25f;
-
-
-        for (int i =0; i < columnNumber; i++)
+        for (int i = 0; i < numberOfColumns; i++) 
         {
-            for(int j = 0; j < columnNumber; j++)
+            for(int j = 0; j < numberOfRows; j++)
             {
-                Instantiate<GameObject>(cell, pos, cell.transform.rotation);
+                Instantiate(cellPrefab.gameObject, initialPosition, cellPrefab.transform.rotation);
 
-                pos += incrementoX;
+                initialPosition += incrementX;
             }
-            pos = new Vector3(posXInincial, pos.y,pos.z);
-            pos -= decrementoY;
+            initialPosition = new Vector3(initialPosX, initialPosition.y, initialPosition.z);
+            initialPosition -= decrementY;
         }
         
     }
@@ -71,83 +65,70 @@ public class GameManager : MonoBehaviour
     {
         Vector3 pos;
 
-        //lista de todas las ids de celda
-        List<int> ids = new List<int>();
-
-
-        //Rellenamos la lista
-        for (int i = 0; i < columnNumber; i++)
+        //Fills up the list
+        for (int i = 0; i < numberOfColumns; i++)
         {
-            for (int j = 0; j < columnNumber; j++)
+            for (int j = 0; j < numberOfRows; j++)
             {
-                ids.Add(GenerateId(i,j));
+                allIds.Add(GenerateId(i, j));
             }
         }
 
-
-        //Mezclamos la lista varias veces para conseguir mayor aleatoriedad
-        for(int i = 0; i < 10; i++)
+        //Shuffles the list a few times so it's more random
+        for (int i = 0; i < 10; i++)
         {
-            Shuffle(ids);
+            Shuffle(allIds);
         }
 
-        //generamos una cantidad de bombas definida por bombsAmount
+        //Generates an amount of bombs defined by bombsAmount
         for (int j = 0; j < bombsAmount; j++)
         {
-            //Debug.Log(ids[j]);
+            //Adds the bomb's ids to our list of bombs so we can know where they are 
+            bombs.Add(allIds[j]);
 
-            //añadimos las bombas que creamos a una lista de bombas para poder comprobar donde estan todas nuestras bombas
-            bombs.Add(ids[j]);
-
-            //Generamos la posicion de nuestra bomba a partir de su id
-            pos = GeneratePosition(ids[j]);
+            //Generates our bomb position from its id
+            pos = CalculatePosition(allIds[j]);
             pos.z = 0.95f;
 
-            //creamos las bombas
-            Instantiate<GameObject>(bomb, pos, bomb.transform.rotation);
+            //Creates the bomb
+            Instantiate(bombPrefab.gameObject, pos, bombPrefab.transform.rotation);
         }
         
     }
 
-    /*las posiciones van de 5 en 5, este metodo se ocupa de convertir la id en coordenadas
-    multiplicarlas por 5 y sumarlas o restarlas a la posicion de la coordenada 0,0*/
-    public Vector3 GeneratePosition(int id)
+    /// <summary>
+    /// Converts ids into coordinates then converts coordinates into position.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Vector3 CalculatePosition(int id)
     {
-        
-
-        Vector3 posicion = new Vector3(-25, 25);
-        int x = id / columnNumber;
-        int y = id % columnNumber;
-
-        //Debug.Log("y es igual a : " + y);
-        //Debug.Log("x es igual a : " + x);
-
-
+        Vector3 position = new Vector3(-25, 25);
+        var x = id / numberOfColumns;
+        var y = id % numberOfRows;
         x *= 5;
         y *= 5;
-        posicion.x += x;
-        posicion.y -= y;
+        position.x += x;
+        position.y -= y;
 
-        return posicion;
+        return position;
     }
 
-    //Randomiza la lista, un poco
+    /// <summary>
+    /// Randomize lists.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
     public void Shuffle<T>(List<T> list)
     {
-        
-
-        int n = list.Count;
+        var n = list.Count;
         while (n > 1)
         {
-            int rng = UnityEngine.Random.Range(0, columnNumber);
-            int rng2 = UnityEngine.Random.Range(0, columnNumber);
-
-
-
+            var rng = UnityEngine.Random.Range(0, numberOfColumns);
+            var rng2 = UnityEngine.Random.Range(0, numberOfColumns);
             n--;
-            int k = rng;
-            int z = rng2;
-
+            var k = rng;
+            var z = rng2;
             T value = list[k];
             list[k] = list[z];
             list[k] = list[n];
@@ -155,13 +136,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //compueba si existen bombas en una posicion indicada
+    /// <summary>
+    /// Comproves if there are bombs in a designated position.
+    /// </summary>
+    /// <param name="posicion"></param>
+    /// <returns></returns>
     public bool BombExists(Vector3 posicion)
     {
+        var generatedId = GenerateId(posicion);
 
-        int id =GenerateId(posicion);
-
-        if (bombs.Contains(id))
+        if (bombs.Contains(generatedId))
         {
             return true;
         }
@@ -170,38 +154,90 @@ public class GameManager : MonoBehaviour
             return false;
         }
     }
-    public bool GetAlive()
+
+
+
+    /*public bool GetAlive()
     {
         return alive;
     }
     public void SetAlive(bool live)
     {
-        alive = live;
+        isPlayerAlive = live;
     }
+    */
 
-    //Genera un id a partir de unas coordenadas x, y  
-    public int GenerateId(int x, int y)
+
+
+
+
+
+    /// <summary>
+    /// Generates an id from x and y coordinates
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <returns></returns>
+    public int GenerateId(int columnIndex, int rowIndex)
     {
-        int id= x * columnNumber + y;
-
-
-        return id;
+        var generatedId= columnIndex * numberOfColumns + rowIndex;
+        return generatedId;
     }
 
-    //Generan un id a partir de una posicion
+    /// <summary>
+    /// Generates an id from a Vector3 Position
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
     public int GenerateId(Vector3 position)
     {
         position.x += 25;
         position.y -= 25;
-
         position.y = Math.Abs(position.y);
         position.x = Math.Abs(position.x);
-
         position.x /= 5;
         position.y /= 5;
-
-        int id = (int)(position.x * columnNumber + position.y);
+        var generatedId = (int)(position.x * numberOfColumns + position.y);
         
-        return id;
+        return generatedId;
     }
 }
+/*
+ * Demasiados espacios
+
+BombsNumber puede ser constante, y columnsnumber tambien
+
+No hacer variables públicas
+Quitar update si no se va a usar
+Usar var para variables en funciones
+
+cell-> cellPrefab en game manager, lo mismo con bomb. Tipar (poner tipo real en lugar de gameObject)
+No need for <GameObject> on instantiate
+
+Positions to constants (generatecells)
+
+//Renombrar columnNumber a numberOfColumns
+Crear numberOfRows
+
+Comentarios en inglés
+
+posXInincial -> initialPosX (en GenerateCells)
+
+GeneratePosition -> CalculateCellPosition
+posicion -> position en GeneratePosition
+id -> cellId en GeneratePosition
+Summary con ///
+
+Shuffle a extension method porque es generico
+
+GetAlive y SetAlive a propiedad. Cambiar nombre a isPlayerAlive o algo así
+
+GenerateId -> x e y a rowIndex y columnIndex
+
+BombsNear -> DisplayBombsNear (siempre verbo pirmero para metodos, a menos que sean event handler)
+Borrar updates
+
+Estilo consistente, poner siempre espacio antes y despues de = (ver field variations en Cell)
+
+En bombsnear, cambiar el if, y usar constantes
+*/
