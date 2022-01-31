@@ -608,9 +608,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512cc58bb70892e41a7a0d80cc1fdb70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cell: {fileID: 5340278362646127976, guid: 17971c9d7d093fb47a25918958c6d3c9, type: 3}
-  bomb: {fileID: 1127531630797208110, guid: ea3c355f5945b7342899fac483032506, type: 3}
-  bombsNumber: 20
+  cellPrefab: {fileID: -2205625611416171799, guid: 17971c9d7d093fb47a25918958c6d3c9, type: 3}
+  bombPrefab: {fileID: 2069316357052312468, guid: ea3c355f5945b7342899fac483032506, type: 3}
 --- !u!4 &2028701471
 Transform:
   m_ObjectHideFlags: 0

@@ -7,21 +7,16 @@ using System;
 public class GameManager : MonoBehaviour
 {
 
-    public Cell cellPrefab;
-    public Bomb bombPrefab;
-    [SerializeField] private readonly int bombsNumber = 18;//Amount of bombs to create
-    private int numberOfColumns = 11;//Table columns
-    private int numberOfRows = 11;//Table rows
-    private bool isPlayerAlive = true;
-    List<int> bombs = new List<int>();//Ids' list that have a bomb 
-    List<int> allIds = new List<int>();//List of all ids 
+    [SerializeField] private Cell cellPrefab;
+    [SerializeField] private Bomb bombPrefab;
+    private readonly int bombsNumber = 18;//Amount of bombs to create
+    private readonly int numberOfColumns = 11;//Table columns
+    private readonly int numberOfRows = 11;//Table rows
+    List<int> cellIdsWithBombs = new List<int>();//Ids' list that have a bomb 
+    List<int> allCellIds = new List<int>();//List of all ids 
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();
-
-    public bool IsPlayerAlive
-    { 
-        get => isPlayerAlive; 
-        set => isPlayerAlive = value;
-    } 
+    HashSet<int> revealedCellIds = new HashSet<int>();
+    public bool IsPlayerAlive { get; set; } = true; 
 
     // Start is called before the first frame update
     void Start()
@@ -61,6 +56,7 @@ public class GameManager : MonoBehaviour
         }
         
     }
+
     void GenerateBombs(int bombsAmount)
     {
         Vector3 pos;
@@ -70,24 +66,24 @@ public class GameManager : MonoBehaviour
         {
             for (int j = 0; j < numberOfRows; j++)
             {
-                allIds.Add(GenerateId(i, j));
+                allCellIds.Add(GenerateId(i, j));
             }
         }
 
         //Shuffles the list a few times so it's more random
         for (int i = 0; i < 10; i++)
         {
-            Shuffle(allIds);
+            Shuffle(allCellIds);
         }
 
         //Generates an amount of bombs defined by bombsAmount
         for (int j = 0; j < bombsAmount; j++)
         {
             //Adds the bomb's ids to our list of bombs so we can know where they are 
-            bombs.Add(allIds[j]);
+            cellIdsWithBombs.Add(allCellIds[j]);
 
             //Generates our bomb position from its id
-            pos = CalculatePosition(allIds[j]);
+            pos = CalculatePosition(allCellIds[j]);
             pos.z = 0.95f;
 
             //Creates the bomb
@@ -145,7 +141,7 @@ public class GameManager : MonoBehaviour
     {
         var generatedId = GenerateId(posicion);
 
-        if (bombs.Contains(generatedId))
+        if (cellIdsWithBombs.Contains(generatedId))
         {
             return true;
         }
@@ -155,7 +151,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
+    public void RevealNeighbourCells(Cell cell)
+    {
+        foreach (var neighbourCellPosition in cell.CalculateEightNeighbourCellPositions()) 
+        {
+            var idNeighbourCell = GenerateId(neighbourCellPosition);
+            if (revealedCellIds.Contains(idNeighbourCell))
+            {
+                continue;
+            }
+            revealedCellIds.Add(idNeighbourCell);
+            cellById[idNeighbourCell].DisplayBombsNear();
+        }
+    }
 
     /*public bool GetAlive()
     {

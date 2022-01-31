@@ -8,8 +8,9 @@ public class Cell : MonoBehaviour
     private GameManager gameManager;
     public TextMesh number;
     private int id;
-    private int num = 0;
-    private Vector3[] variations = new Vector3[8];
+
+    private Vector3[] eightVariations = new Vector3[8];
+    private Vector3[] fourVariations = new Vector3[4];
 
     public int Id => id;
 
@@ -20,7 +21,7 @@ public class Cell : MonoBehaviour
         gameManager = FindObjectOfType<GameManager>();
         id = gameManager.GenerateId(gameObject.transform.position);
         gameManager.RegisterCell(this);
-        DisplayBombsNear(gameObject.transform.position);
+
     }
 
     /// <summary>
@@ -31,7 +32,7 @@ public class Cell : MonoBehaviour
         if (gameManager.IsPlayerAlive)
         {
             Destroy(gameObject);
-            if (gameManager.BombExists(gameObject.transform.position)) 
+            if (gameManager.BombExists(gameObject.transform.position))
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
                 gameManager.IsPlayerAlive = false;
@@ -39,6 +40,7 @@ public class Cell : MonoBehaviour
             else
             {
                 Debug.Log("It's aliiiiiiiive");
+                gameManager.RevealNeighbourCells(this);
             }
         }
     }
@@ -48,7 +50,7 @@ public class Cell : MonoBehaviour
     /// </summary>
     private void OnMouseOver()
     {
-        if (Input.GetMouseButtonDown(1)) 
+        if (Input.GetMouseButtonDown(1))
         {
             if (gameManager.IsPlayerAlive)
             {
@@ -63,51 +65,57 @@ public class Cell : MonoBehaviour
     /// </summary>
     private void FillVariations()
     {
-        variations[0] = new Vector3(-5, 0);
-        variations[1] = new Vector3(-5, 5);
-        variations[2] = new Vector3(-5, -5);
-        variations[3] = new Vector3(0, -5);
-        variations[4] = new Vector3(0, 5);
-        variations[5] = new Vector3(5, -5);
-        variations[6] = new Vector3(5, 0);
-        variations[7] = new Vector3(5, 5);
+        eightVariations[0] = new Vector3(-5, 0);
+        eightVariations[1] = new Vector3(-5, 5);
+        eightVariations[2] = new Vector3(-5, -5);
+        eightVariations[3] = new Vector3(0, -5);
+        eightVariations[4] = new Vector3(0, 5);
+        eightVariations[5] = new Vector3(5, -5);
+        eightVariations[6] = new Vector3(5, 0);
+        eightVariations[7] = new Vector3(5, 5);
     }
 
     /// <summary>
     /// Displays a number that represents how many bombs are nearby
     /// </summary>
-    /// <param name="position"></param>
-    private void DisplayBombsNear(Vector3 position)
+    public void DisplayBombsNear()
     {
+        var position = gameObject.transform.position;
+        var num = 0;
         if (gameManager.BombExists(position))
         {
             return;
         }
-        for (int i = 0; i < 8; i++) 
+        foreach (var neighbourPosition in CalculateEightNeighbourCellPositions())
         {
-            var auxX = position.x + variations[i].x;
-            var auxY = position.y + variations[i].y;
-            if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25) && gameManager.BombExists(position + variations[i])) 
-            {
+            if (gameManager.BombExists(neighbourPosition)) {
                 num++;
             }
         }
-        number.text = num.ToString();
-        number.gameObject.SetActive(true);
+        if (num == 0)
+        {
+            gameManager.RevealNeighbourCells(this);
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            number.text = num.ToString();
+            number.gameObject.SetActive(true);
+        }
+
+        
     }
 
-    public void ModifyById(int sentId)
-    {
-        if (id == sentId)
+    public IEnumerable<Vector3> CalculateEightNeighbourCellPositions() {
+        var position = gameObject.transform.position;
+        for (int i = 0; i < 8; i++)
         {
-            //cositas
-            /*
-            1.Crear una funcion en Cell para mostrar el numero
-            2.Calcular ids de cells de alrededor
-            3.Para cada id, pedir al gameManager la Cell correspondiente y llamar a la función que hemos creado en 1
-            */
+            var auxX = position.x + eightVariations[i].x;
+            var auxY = position.y + eightVariations[i].y;
+            if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25))
+            {
+                yield return position + eightVariations[i];
+            }
         }
     }
-
-    
 }
