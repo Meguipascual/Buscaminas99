@@ -36,6 +36,7 @@ public class Cell : MonoBehaviour
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
                 gameManager.IsPlayerAlive = false;
+                gameManager.deadText.gameObject.SetActive(true);
             }
             else
             {
@@ -45,6 +46,7 @@ public class Cell : MonoBehaviour
         }
     }
 
+    
     /// <summary>
     /// Puts or removes flags when right click
     /// </summary>

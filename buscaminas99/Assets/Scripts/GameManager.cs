@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using TMPro;
 using System;
 
 
@@ -9,20 +11,21 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private Cell cellPrefab;
     [SerializeField] private Bomb bombPrefab;
-    private readonly int bombsNumber = 18;//Amount of bombs to create
+    public TextMeshProUGUI deadText;
+    private readonly int numberOfBombs = 18;//Amount of bombs to create
     private readonly int numberOfColumns = 11;//Table columns
     private readonly int numberOfRows = 11;//Table rows
     List<int> cellIdsWithBombs = new List<int>();//Ids' list that have a bomb 
     List<int> allCellIds = new List<int>();//List of all ids 
-    Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();
-    HashSet<int> revealedCellIds = new HashSet<int>();
-    public bool IsPlayerAlive { get; set; } = true; 
+    Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();//Dictionary that relates an ID with its Cell
+    HashSet<int> revealedCellIds = new HashSet<int>();//HashSet that Stores all the revealed ID cells
+    public bool IsPlayerAlive { get; set; } = true; //Simplifies the get/set structure for a boolean to be accesed by other classes
 
     // Start is called before the first frame update
     void Start()
     {
         GenerateCells();
-        GenerateBombs(bombsNumber);
+        GenerateBombs(numberOfBombs);
     }
 
     public void RegisterCell(Cell cell)
@@ -48,18 +51,16 @@ public class GameManager : MonoBehaviour
             for(int j = 0; j < numberOfRows; j++)
             {
                 Instantiate(cellPrefab.gameObject, initialPosition, cellPrefab.transform.rotation);
-
                 initialPosition += incrementX;
             }
             initialPosition = new Vector3(initialPosX, initialPosition.y, initialPosition.z);
             initialPosition -= decrementY;
         }
-        
     }
 
     void GenerateBombs(int bombsAmount)
     {
-        Vector3 pos;
+        var position = new Vector3();
 
         //Fills up the list
         for (int i = 0; i < numberOfColumns; i++)
@@ -83,11 +84,11 @@ public class GameManager : MonoBehaviour
             cellIdsWithBombs.Add(allCellIds[j]);
 
             //Generates our bomb position from its id
-            pos = CalculatePosition(allCellIds[j]);
-            pos.z = 0.95f;
+            position = CalculatePosition(allCellIds[j]);
+            position.z = 0.95f;
 
             //Creates the bomb
-            Instantiate(bombPrefab.gameObject, pos, bombPrefab.transform.rotation);
+            Instantiate(bombPrefab.gameObject, position, bombPrefab.transform.rotation);
         }
         
     }
@@ -99,7 +100,7 @@ public class GameManager : MonoBehaviour
     /// <returns></returns>
     public Vector3 CalculatePosition(int id)
     {
-        Vector3 position = new Vector3(-25, 25);
+        var position = new Vector3(-25, 25);
         var x = id / numberOfColumns;
         var y = id % numberOfRows;
         x *= 5;
@@ -165,21 +166,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /*public bool GetAlive()
-    {
-        return alive;
-    }
-    public void SetAlive(bool live)
-    {
-        isPlayerAlive = live;
-    }
-    */
-
-
-
-
-
-
     /// <summary>
     /// Generates an id from x and y coordinates
     /// </summary>
@@ -209,43 +195,9 @@ public class GameManager : MonoBehaviour
         
         return generatedId;
     }
+
+    public void Reset()
+    {
+        SceneManager.LoadScene("MineSweeper");
+    }
 }
-/*
- * Demasiados espacios
-
-BombsNumber puede ser constante, y columnsnumber tambien
-
-No hacer variables públicas
-Quitar update si no se va a usar
-Usar var para variables en funciones
-
-cell-> cellPrefab en game manager, lo mismo con bomb. Tipar (poner tipo real en lugar de gameObject)
-No need for <GameObject> on instantiate
-
-Positions to constants (generatecells)
-
-//Renombrar columnNumber a numberOfColumns
-Crear numberOfRows
-
-Comentarios en inglés
-
-posXInincial -> initialPosX (en GenerateCells)
-
-GeneratePosition -> CalculateCellPosition
-posicion -> position en GeneratePosition
-id -> cellId en GeneratePosition
-Summary con ///
-
-Shuffle a extension method porque es generico
-
-GetAlive y SetAlive a propiedad. Cambiar nombre a isPlayerAlive o algo así
-
-GenerateId -> x e y a rowIndex y columnIndex
-
-BombsNear -> DisplayBombsNear (siempre verbo pirmero para metodos, a menos que sean event handler)
-Borrar updates
-
-Estilo consistente, poner siempre espacio antes y despues de = (ver field variations en Cell)
-
-En bombsnear, cambiar el if, y usar constantes
-*/
