@@ -138,3 +138,6 @@ sh.exe.stackdump
 
 # Builds
 Builds/*
+
+# Clones
+buscaminas99_clone_*/
