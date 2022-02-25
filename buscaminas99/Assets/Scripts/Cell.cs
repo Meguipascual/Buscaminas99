@@ -6,6 +6,7 @@ public class Cell : MonoBehaviour
 {
     public GameObject flag;
     private GameManager gameManager;
+    private BoardManager boardManager;
     private ClientManager clientManager;
     public TextMesh number;
     private int id;
@@ -21,8 +22,9 @@ public class Cell : MonoBehaviour
         FillVariations();
         gameManager = FindObjectOfType<GameManager>();
         clientManager = FindObjectOfType<ClientManager>();
-        id = gameManager.GenerateId(gameObject.transform.position);
-        gameManager.RegisterCell(this);
+        boardManager = FindObjectOfType<BoardManager>();
+        id = boardManager.GenerateId(gameObject.transform.position);
+        boardManager.RegisterCell(this);
 
     }
 
@@ -36,7 +38,7 @@ public class Cell : MonoBehaviour
             var message = $"{id} x = {transform.position.x} y = {transform.position.y}";
             clientManager.SendMessage(message);
             Destroy(gameObject);
-            if (gameManager.BombExists(gameObject.transform.position))
+            if (boardManager.BombExists(gameObject.transform.position))
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
                 gameManager.IsPlayerAlive = false;
@@ -45,7 +47,7 @@ public class Cell : MonoBehaviour
             else
             {
                 Debug.Log("It's aliiiiiiiive");
-                gameManager.RevealNeighbourCells(this);
+                boardManager.RevealNeighbourCells(this);
             }
         }
     }
@@ -88,19 +90,19 @@ public class Cell : MonoBehaviour
     {
         var position = gameObject.transform.position;
         var num = 0;
-        if (gameManager.BombExists(position))
+        if (boardManager.BombExists(position))
         {
             return;
         }
         foreach (var neighbourPosition in CalculateEightNeighbourCellPositions())
         {
-            if (gameManager.BombExists(neighbourPosition)) {
+            if (boardManager.BombExists(neighbourPosition)) {
                 num++;
             }
         }
         if (num == 0)
         {
-            gameManager.RevealNeighbourCells(this);
+            boardManager.RevealNeighbourCells(this);
             Destroy(this.gameObject);
         }
         else

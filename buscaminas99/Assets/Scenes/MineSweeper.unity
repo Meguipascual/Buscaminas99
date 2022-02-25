@@ -925,6 +925,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1588036708}
   m_CullTransparentMesh: 1
+--- !u!1 &1628664381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1628664383}
+  - component: {fileID: 1628664382}
+  m_Layer: 0
+  m_Name: Boardmanager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1628664382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1628664381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd1200119d67374da6ab098b2fbe284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cellPrefab: {fileID: -2205625611416171799, guid: 17971c9d7d093fb47a25918958c6d3c9, type: 3}
+  bombPrefab: {fileID: 2069316357052312468, guid: ea3c355f5945b7342899fac483032506, type: 3}
+--- !u!4 &1628664383
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1628664381}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 578.83685, y: 211.99953, z: 28.132477}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1849021856
 GameObject:
   m_ObjectHideFlags: 0
@@ -1153,8 +1198,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512cc58bb70892e41a7a0d80cc1fdb70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellPrefab: {fileID: -2205625611416171799, guid: 17971c9d7d093fb47a25918958c6d3c9, type: 3}
-  bombPrefab: {fileID: 2069316357052312468, guid: ea3c355f5945b7342899fac483032506, type: 3}
   deadText: {fileID: 1588036710}
 --- !u!4 &2028701471
 Transform:
