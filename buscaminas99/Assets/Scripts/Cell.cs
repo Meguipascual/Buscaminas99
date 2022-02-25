@@ -6,6 +6,7 @@ public class Cell : MonoBehaviour
 {
     public GameObject flag;
     private GameManager gameManager;
+    private ClientManager clientManager;
     public TextMesh number;
     private int id;
 
@@ -19,6 +20,7 @@ public class Cell : MonoBehaviour
     {
         FillVariations();
         gameManager = FindObjectOfType<GameManager>();
+        clientManager = FindObjectOfType<ClientManager>();
         id = gameManager.GenerateId(gameObject.transform.position);
         gameManager.RegisterCell(this);
 
@@ -31,6 +33,8 @@ public class Cell : MonoBehaviour
     {
         if (gameManager.IsPlayerAlive)
         {
+            var message = $"{id} x = {transform.position.x} y = {transform.position.y}";
+            clientManager.SendMessage(message);
             Destroy(gameObject);
             if (gameManager.BombExists(gameObject.transform.position))
             {
