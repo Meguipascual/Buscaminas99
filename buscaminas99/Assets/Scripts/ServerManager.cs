@@ -12,6 +12,8 @@ public class ServerManager : MonoBehaviour
     private BoardManager boardManager;
     private UdpConnectionListener connectionListener;
     private List<int> cellIdsToProcess = new List<int>();
+    private bool seedMessageProccessed;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,34 +22,44 @@ public class ServerManager : MonoBehaviour
         connectionListener.NewConnection += PrintConnection;
         connectionListener.Start();
     }
+
     private void Update()
     {
         foreach (var cellId in cellIdsToProcess)
         {
+            if (!seedMessageProccessed)
+            {
+                boardManager.GenerateBombs(cellId);
+                seedMessageProccessed = true;
+                continue;
+            }
             var cell = boardManager.GetCell(cellId);
             cell.UseCell();
         }
         cellIdsToProcess.Clear();
-
     }
+
     private void PrintConnection(NewConnectionEventArgs args)
     {
         Debug.Log(args.Connection.EndPoint.Address + ":" + args.Connection.EndPoint.Port);
         args.Connection.DataReceived += ProcessMessage;
         
     }
+
     private void OnDestroy()
     {
         connectionListener.Dispose();
     }
+
     private void ProcessMessage(DataReceivedEventArgs args) 
     {
-        var byteArray = new byte[args.Message.Length]; 
+        var byteArray = new byte[args.Message.Length];
         Array.Copy(args.Message.Buffer, args.Message.Offset, byteArray, 0, byteArray.Length);
         var networkMessage = ByteArrayToNetworkMessage(byteArray);
-        Debug.Log(networkMessage.Text);
+        Debug.Log(networkMessage.Text + " " + networkMessage.CellId);
         cellIdsToProcess.Add(networkMessage.CellId);
     }
+
     NetworkMessage ByteArrayToNetworkMessage(byte[] byteArray)
     {
         BinaryFormatter bf = new BinaryFormatter();

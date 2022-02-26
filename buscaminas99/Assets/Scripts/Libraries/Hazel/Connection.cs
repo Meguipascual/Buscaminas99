@@ -5,6 +5,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using UnityEngine;
 
 namespace Hazel
 {
@@ -193,7 +194,7 @@ namespace Hazel
                 }
                 catch (Exception e)
                 {
-                    
+                    Debug.LogException(e);
                 }
             }
             else

@@ -12,6 +12,7 @@ public class ClientManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        FindObjectOfType<NetworkManager>().IsClient = true;
         clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(IPAddress.Loopback, 6501));
         clientConnection.ConnectAsync();
     }

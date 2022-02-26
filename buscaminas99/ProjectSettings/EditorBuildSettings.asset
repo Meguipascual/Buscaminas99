@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/ServerClientSelection.unity
     guid: 49f1090e82a786f4f94443a5869e335a
   - enabled: 1
-    path: Assets/Scenes/MineSweeper.unity
+    path: Assets/Scenes/Client.unity
     guid: 3bd9dc2e17b0de040abefc1e9a0ef355
   - enabled: 1
     path: Assets/Scenes/Server.unity

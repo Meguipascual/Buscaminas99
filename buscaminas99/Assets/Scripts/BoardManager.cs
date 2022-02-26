@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 
+using Random = System.Random;
+
 
 public class BoardManager : MonoBehaviour
 {
@@ -14,6 +16,7 @@ public class BoardManager : MonoBehaviour
     private readonly int numberOfBombs = 18;//Amount of bombs to create
     private readonly int numberOfColumns = 11;//Table columns
     private readonly int numberOfRows = 11;//Table rows
+    private Random random;
     List<int> cellIdsWithBombs = new List<int>();//Ids' list that have a bomb 
     List<int> allCellIds = new List<int>();//List of all ids 
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();//Dictionary that relates an ID with its Cell
@@ -23,7 +26,15 @@ public class BoardManager : MonoBehaviour
     void Start()
     {
         GenerateCells();
-        GenerateBombs(numberOfBombs);
+        if (FindObjectOfType<NetworkManager>().IsClient) 
+        { 
+            var seedRandom = new Random();
+            var seed=seedRandom.Next();
+            
+            FindObjectOfType<ClientManager>().SendMessage("", seed);
+            GenerateBombs(seed);
+        }
+        
     }
 
     public void RegisterCell(Cell cell)
@@ -56,8 +67,9 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    void GenerateBombs(int bombsAmount)
+    public void GenerateBombs(int seed)
     {
+        random = new Random(seed);
         var position = new Vector3();
 
         //Fills up the list
@@ -76,7 +88,7 @@ public class BoardManager : MonoBehaviour
         }
 
         //Generates an amount of bombs defined by bombsAmount
-        for (int j = 0; j < bombsAmount; j++)
+        for (int j = 0; j < numberOfBombs; j++)
         {
             //Adds the bomb's ids to our list of bombs so we can know where they are 
             cellIdsWithBombs.Add(allCellIds[j]);
@@ -119,8 +131,8 @@ public class BoardManager : MonoBehaviour
         var n = list.Count;
         while (n > 1)
         {
-            var rng = UnityEngine.Random.Range(0, numberOfColumns);
-            var rng2 = UnityEngine.Random.Range(0, numberOfColumns);
+            var rng = random.Next(0, numberOfColumns);
+            var rng2 = random.Next(0, numberOfColumns);
             n--;
             var k = rng;
             var z = rng2;
