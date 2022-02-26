@@ -36,21 +36,26 @@ public class Cell : MonoBehaviour
         if (gameManager.IsPlayerAlive)
         {
             var message = $"{id} x = {transform.position.x} y = {transform.position.y}";
-            clientManager.SendMessage(message);
-            Destroy(gameObject);
-            if (boardManager.BombExists(gameObject.transform.position))
-            {
-                Debug.Log("GameOver, te has murido muy fuerte");
-                gameManager.IsPlayerAlive = false;
-                gameManager.deadText.gameObject.SetActive(true);
-            }
-            else
-            {
-                Debug.Log("It's aliiiiiiiive");
-                boardManager.RevealNeighbourCells(this);
-            }
+            clientManager.SendMessage(message, id);
+            UseCell();
         }
     }
+
+    public void UseCell()
+    {
+        Destroy(gameObject);
+        if (boardManager.BombExists(gameObject.transform.position))
+        {
+            Debug.Log("GameOver, te has murido muy fuerte");
+            gameManager.IsPlayerAlive = false;
+            gameManager.deadText.gameObject.SetActive(true);
+        }
+        else
+        {
+            Debug.Log("It's aliiiiiiiive");
+            boardManager.RevealNeighbourCells(this);
+        }
+    }  
 
     
     /// <summary>

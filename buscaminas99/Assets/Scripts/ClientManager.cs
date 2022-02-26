@@ -15,9 +15,9 @@ public class ClientManager : MonoBehaviour
         clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(IPAddress.Loopback, 6501));
         clientConnection.ConnectAsync();
     }
-    public new void SendMessage(string msg)
+    public new void SendMessage(string msg, int cellId)
     {
-        clientConnection.SendBytes(ObjectToByteArray (new NetworkMessage() { Text = msg}));
+        clientConnection.SendBytes(ObjectToByteArray (new NetworkMessage() { Text = msg, CellId = cellId}));
     }
     byte[] ObjectToByteArray<T>(T obj)
     {

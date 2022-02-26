@@ -191,7 +191,10 @@ namespace Hazel
                 {
                     handler(new DataReceivedEventArgs(this, msg, sendOption));
                 }
-                catch { }
+                catch (Exception e)
+                {
+                    
+                }
             }
             else
             {
