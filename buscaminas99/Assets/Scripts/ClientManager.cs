@@ -12,8 +12,10 @@ public class ClientManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        string ipAlberto = "78.45.45.231";
+        // IPAddress.Parse(ipAlberto) volver a ponerlo en vez de lo de alberto para futuras pruebas locales de server
         FindObjectOfType<NetworkManager>().IsClient = true;
-        clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(IPAddress.Loopback, 6501));
+        clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(IPAddress.Loopback , 6501));
         clientConnection.ConnectAsync();
     }
     public new void SendMessage(string msg, int cellId)
