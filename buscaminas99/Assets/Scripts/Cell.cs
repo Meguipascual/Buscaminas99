@@ -19,13 +19,12 @@ public class Cell : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        FillVariations();
         gameManager = FindObjectOfType<GameManager>();
         clientManager = FindObjectOfType<ClientManager>();
         boardManager = FindObjectOfType<BoardManager>();
+        FillVariations();
         id = boardManager.GenerateId(gameObject.transform.position);
         boardManager.RegisterCell(this);
-
     }
 
     /// <summary>
@@ -78,14 +77,14 @@ public class Cell : MonoBehaviour
     /// </summary>
     private void FillVariations()
     {
-        eightVariations[0] = new Vector3(-5, 0);
-        eightVariations[1] = new Vector3(-5, 5);
-        eightVariations[2] = new Vector3(-5, -5);
-        eightVariations[3] = new Vector3(0, -5);
-        eightVariations[4] = new Vector3(0, 5);
-        eightVariations[5] = new Vector3(5, -5);
-        eightVariations[6] = new Vector3(5, 0);
-        eightVariations[7] = new Vector3(5, 5);
+        eightVariations[0] = new Vector3(-boardManager.CellSize, 0);
+        eightVariations[1] = new Vector3(-boardManager.CellSize, boardManager.CellSize);
+        eightVariations[2] = new Vector3(-boardManager.CellSize, -boardManager.CellSize);
+        eightVariations[3] = new Vector3(0, -boardManager.CellSize);
+        eightVariations[4] = new Vector3(0, boardManager.CellSize);
+        eightVariations[5] = new Vector3(boardManager.CellSize, -boardManager.CellSize);
+        eightVariations[6] = new Vector3(boardManager.CellSize, 0);
+        eightVariations[7] = new Vector3(boardManager.CellSize, boardManager.CellSize);
     }
 
     /// <summary>
@@ -125,10 +124,10 @@ public class Cell : MonoBehaviour
         {
             var auxX = position.x + eightVariations[i].x;
             var auxY = position.y + eightVariations[i].y;
-            if (auxX >= (boardManager.BoardCenterPosition.x - 25) 
-                && auxX <= (boardManager.BoardCenterPosition.x + 25) 
-                && auxY >= (boardManager.BoardCenterPosition.y - 25) 
-                && auxY <= (boardManager.BoardCenterPosition.y + 25))
+            if (auxX >= (boardManager.BoardCenterPosition.x - boardManager.BoardHalf) 
+                && auxX <= (boardManager.BoardCenterPosition.x + boardManager.BoardHalf) 
+                && auxY >= (boardManager.BoardCenterPosition.y - boardManager.BoardHalf) 
+                && auxY <= (boardManager.BoardCenterPosition.y + boardManager.BoardHalf))
             {
                 yield return position + eightVariations[i];
             }

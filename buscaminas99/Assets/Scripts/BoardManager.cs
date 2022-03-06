@@ -23,11 +23,15 @@ public class BoardManager : MonoBehaviour
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();//Dictionary that relates an ID with its Cell
     HashSet<int> revealedCellIds = new HashSet<int>();//HashSet that Stores all the revealed ID cells
     public Vector2 BoardCenterPosition { get; private set; }
+    public float Scale { get; private set; }
+    public float CellSize => Scale * 5;
+    public float BoardHalf => CellSize * (numberOfColumns - 1) / 2;
 
     // Start is called before the first frame update
     void Start()
     {
         BoardCenterPosition = boardCenter.position;
+        Scale = transform.localScale.x;
         GenerateCells();
         if (FindObjectOfType<NetworkManager>().IsClient) 
         { 
@@ -53,10 +57,10 @@ public class BoardManager : MonoBehaviour
     //Generates cells all over the table
     void GenerateCells()
     {
-        var initialPosition = new Vector3(BoardCenterPosition.x - 25, BoardCenterPosition.y + 25, -0.4f);
-        var incrementX = new Vector3(5, 0, 0);
-        var decrementY = new Vector3(0, 5, 0);
-        var initialPosX = BoardCenterPosition.x - 25;
+        var initialPosition = new Vector3(BoardCenterPosition.x - BoardHalf, BoardCenterPosition.y + BoardHalf, -0.4f);
+        var incrementX = new Vector3(CellSize, 0, 0);
+        var decrementY = new Vector3(0, CellSize, 0);
+        var initialPosX = BoardCenterPosition.x - BoardHalf;
 
         for (int i = 0; i < numberOfColumns; i++)
         {
@@ -113,11 +117,11 @@ public class BoardManager : MonoBehaviour
     /// <returns></returns>
     public Vector3 CalculatePosition(int id)
     {
-        var position = new Vector3(BoardCenterPosition.x - 25, BoardCenterPosition.y + 25);
-        var x = id / numberOfColumns;
-        var y = id % numberOfRows;
-        x *= 5;
-        y *= 5;
+        var position = new Vector3(BoardCenterPosition.x - BoardHalf, BoardCenterPosition.y + BoardHalf);
+        float x = id / numberOfColumns;
+        float y = id % numberOfRows;
+        x *= CellSize;
+        y *= CellSize;
         position.x += x;
         position.y -= y;
 
@@ -198,12 +202,12 @@ public class BoardManager : MonoBehaviour
     /// <returns></returns>
     public int GenerateId(Vector3 position)
     {
-        position.x +=(25 - BoardCenterPosition.x);
-        position.y -= (25 + BoardCenterPosition.y);
+        position.x += (BoardHalf - BoardCenterPosition.x);
+        position.y -= (BoardHalf + BoardCenterPosition.y);
         position.y = Math.Abs(position.y);
         position.x = Math.Abs(position.x);
-        position.x /= 5;
-        position.y /= 5;
+        position.x /= CellSize;
+        position.y /= CellSize;
         var generatedId = (int)(position.x * numberOfColumns + position.y);
 
         return generatedId;
