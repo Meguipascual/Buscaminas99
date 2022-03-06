@@ -66,7 +66,11 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < numberOfRows; j++)
             {
-                Instantiate(cellPrefab.gameObject, initialPosition, cellPrefab.transform.rotation);
+                var cell = Instantiate(cellPrefab.gameObject, initialPosition, cellPrefab.transform.rotation);
+                cell.transform.localScale = new Vector3(
+                    transform.localScale.x * cell.transform.localScale.x,
+                    transform.localScale.y * cell.transform.localScale.y,
+                    cell.transform.localScale.z);
                 initialPosition += incrementX;
             }
             initialPosition = new Vector3(initialPosX, initialPosition.y, initialPosition.z);
@@ -105,7 +109,11 @@ public class BoardManager : MonoBehaviour
             position.z = 0.95f;
 
             //Creates the bomb
-            Instantiate(bombPrefab.gameObject, position, bombPrefab.transform.rotation);
+            var bomb = Instantiate(bombPrefab.gameObject, position, bombPrefab.transform.rotation);
+            bomb.transform.localScale = new Vector3(
+                transform.localScale.x * bomb.transform.localScale.x,
+                transform.localScale.y * bomb.transform.localScale.y,
+                bomb.transform.localScale.z);
         }
 
     }
