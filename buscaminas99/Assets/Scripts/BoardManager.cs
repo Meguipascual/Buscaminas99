@@ -13,6 +13,7 @@ public class BoardManager : MonoBehaviour
 
     [SerializeField] private Cell cellPrefab;
     [SerializeField] private Bomb bombPrefab;
+    [SerializeField] Transform boardCenter;
     private readonly int numberOfBombs = 18;//Amount of bombs to create
     private readonly int numberOfColumns = 11;//Table columns
     private readonly int numberOfRows = 11;//Table rows
@@ -21,10 +22,12 @@ public class BoardManager : MonoBehaviour
     List<int> allCellIds = new List<int>();//List of all ids 
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();//Dictionary that relates an ID with its Cell
     HashSet<int> revealedCellIds = new HashSet<int>();//HashSet that Stores all the revealed ID cells
+    public Vector2 BoardCenterPosition { get; private set; }
 
     // Start is called before the first frame update
     void Start()
     {
+        BoardCenterPosition = boardCenter.position;
         GenerateCells();
         if (FindObjectOfType<NetworkManager>().IsClient) 
         { 
@@ -50,10 +53,10 @@ public class BoardManager : MonoBehaviour
     //Generates cells all over the table
     void GenerateCells()
     {
-        var initialPosition = new Vector3(-25, 25, -0.4f);
+        var initialPosition = new Vector3(BoardCenterPosition.x - 25, BoardCenterPosition.y + 25, -0.4f);
         var incrementX = new Vector3(5, 0, 0);
         var decrementY = new Vector3(0, 5, 0);
-        var initialPosX = -25f;
+        var initialPosX = BoardCenterPosition.x - 25;
 
         for (int i = 0; i < numberOfColumns; i++)
         {
@@ -110,7 +113,7 @@ public class BoardManager : MonoBehaviour
     /// <returns></returns>
     public Vector3 CalculatePosition(int id)
     {
-        var position = new Vector3(-25, 25);
+        var position = new Vector3(BoardCenterPosition.x - 25, BoardCenterPosition.y + 25);
         var x = id / numberOfColumns;
         var y = id % numberOfRows;
         x *= 5;
@@ -195,8 +198,8 @@ public class BoardManager : MonoBehaviour
     /// <returns></returns>
     public int GenerateId(Vector3 position)
     {
-        position.x += 25;
-        position.y -= 25;
+        position.x +=(25 - BoardCenterPosition.x);
+        position.y -= (25 + BoardCenterPosition.y);
         position.y = Math.Abs(position.y);
         position.x = Math.Abs(position.x);
         position.x /= 5;

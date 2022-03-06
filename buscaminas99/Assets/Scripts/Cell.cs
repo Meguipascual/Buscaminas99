@@ -125,7 +125,10 @@ public class Cell : MonoBehaviour
         {
             var auxX = position.x + eightVariations[i].x;
             var auxY = position.y + eightVariations[i].y;
-            if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25))
+            if (auxX >= (boardManager.BoardCenterPosition.x - 25) 
+                && auxX <= (boardManager.BoardCenterPosition.x + 25) 
+                && auxY >= (boardManager.BoardCenterPosition.y - 25) 
+                && auxY <= (boardManager.BoardCenterPosition.y + 25))
             {
                 yield return position + eightVariations[i];
             }
