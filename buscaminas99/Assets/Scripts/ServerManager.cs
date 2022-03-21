@@ -13,13 +13,15 @@ public class ServerManager : MonoBehaviour
     private UdpConnectionListener connectionListener;
     private List<int> cellIdsToProcess = new List<int>();
     private bool seedMessageProccessed;
+    private int nextConnectionId;
+    private Dictionary<int, Connection> connectionById = new Dictionary<int, Connection>();
 
     // Start is called before the first frame update
     void Start()
     {
         boardManager = FindObjectOfType<BoardManager>(); 
         connectionListener = new UdpConnectionListener(new IPEndPoint(IPAddress.Any, 6501));
-        connectionListener.NewConnection += PrintConnection;
+        connectionListener.NewConnection += HandleNewConnection;
         connectionListener.Start();
     }
 
@@ -39,11 +41,13 @@ public class ServerManager : MonoBehaviour
         cellIdsToProcess.Clear();
     }
 
-    private void PrintConnection(NewConnectionEventArgs args)
+    private void HandleNewConnection(NewConnectionEventArgs args)
     {
+        var newConnectionId = nextConnectionId; 
         Debug.Log(args.Connection.EndPoint.Address + ":" + args.Connection.EndPoint.Port);
-        args.Connection.DataReceived += ProcessMessage;
-        
+        args.Connection.DataReceived += args => ProcessMessage(args, newConnectionId);
+        connectionById[newConnectionId] = args.Connection; 
+        nextConnectionId++;
     }
 
     private void OnDestroy()
@@ -51,21 +55,24 @@ public class ServerManager : MonoBehaviour
         connectionListener.Dispose();
     }
 
-    private void ProcessMessage(DataReceivedEventArgs args) 
+    private void ProcessMessage(DataReceivedEventArgs args, int connectionId) 
     {
         var byteArray = new byte[args.Message.Length];
         Array.Copy(args.Message.Buffer, args.Message.Offset, byteArray, 0, byteArray.Length);
-        var networkMessage = ByteArrayToNetworkMessage(byteArray);
+        var networkMessage = NetworkUtils.ByteArrayToNetworkMessage(byteArray);
         Debug.Log(networkMessage.Text + " " + networkMessage.CellId);
-        cellIdsToProcess.Add(networkMessage.CellId);
-    }
-
-    NetworkMessage ByteArrayToNetworkMessage(byte[] byteArray)
-    {
-        BinaryFormatter bf = new BinaryFormatter();
-        using (MemoryStream ms = new MemoryStream(byteArray))
+        //cellIdsToProcess.Add(networkMessage.CellId);
+        Debug.Log($"Connection id: {connectionId}");
+        networkMessage.ConnectionId = connectionId;
+        byteArray = NetworkUtils.ObjectToByteArray(networkMessage);
+        for(int i= 0; i < nextConnectionId; i++)
         {
-            return (NetworkMessage)bf.Deserialize(ms);
+            if(connectionId != i)
+            {
+                connectionById[i].SendBytes(byteArray);
+            }
         }
     }
+
+    
 }
