@@ -34,12 +34,12 @@ public class BoardManager : MonoBehaviour
         BoardCenterPosition = boardCenter.position;
         Scale = transform.localScale.x;
         GenerateCells();
-        if (FindObjectOfType<NetworkManager>().IsClient) 
+        if (FindObjectOfType<NetworkManager>().IsClient && !IsRivalBoard) 
         { 
             var seedRandom = new Random();
             var seed=seedRandom.Next();
             
-            FindObjectOfType<ClientManager>().SendMessage("", seed);
+            FindObjectOfType<ClientManager>().SendSeedMessage("", seed);
             GenerateBombs(seed);
         }
         
