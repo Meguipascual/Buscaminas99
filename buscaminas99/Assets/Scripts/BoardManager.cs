@@ -23,6 +23,7 @@ public class BoardManager : MonoBehaviour
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();//Dictionary that relates an ID with its Cell
     HashSet<int> revealedCellIds = new HashSet<int>();//HashSet that Stores all the revealed ID cells
     public Vector2 BoardCenterPosition { get; private set; }
+    public bool IsRivalBoard => gameObject.CompareTag(Tags.RivalBoard);
     public float Scale { get; private set; }
     public float CellSize => Scale * 5;
     public float BoardHalf => CellSize * (numberOfColumns - 1) / 2;
@@ -66,7 +67,8 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < numberOfRows; j++)
             {
-                var cell = Instantiate(cellPrefab.gameObject, initialPosition, cellPrefab.transform.rotation);
+                var cell = Instantiate<Cell>(cellPrefab, initialPosition, cellPrefab.transform.rotation);
+                cell.SetBoardManager(this);
                 cell.transform.localScale = new Vector3(
                     transform.localScale.x * cell.transform.localScale.x,
                     transform.localScale.y * cell.transform.localScale.y,
@@ -115,7 +117,6 @@ public class BoardManager : MonoBehaviour
                 bomb.transform.localScale.y,
                 transform.localScale.y * bomb.transform.localScale.z);
         }
-
     }
 
     /// <summary>

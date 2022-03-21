@@ -21,10 +21,14 @@ public class Cell : MonoBehaviour
     {
         gameManager = FindObjectOfType<GameManager>();
         clientManager = FindObjectOfType<ClientManager>();
-        boardManager = FindObjectOfType<BoardManager>();
         FillVariations();
         id = boardManager.GenerateId(gameObject.transform.position);
         boardManager.RegisterCell(this);
+    }
+
+    public void SetBoardManager(BoardManager boardManager)
+    {
+        this.boardManager = boardManager;
     }
 
     /// <summary>
@@ -32,7 +36,7 @@ public class Cell : MonoBehaviour
     /// </summary>
     private void OnMouseDown()
     {
-        if (gameManager.IsPlayerAlive)
+        if (gameManager.IsPlayerAlive && !boardManager.IsRivalBoard)
         {
             var message = $"{id} x = {transform.position.x} y = {transform.position.y}";
             clientManager.SendMessage(message, id);
