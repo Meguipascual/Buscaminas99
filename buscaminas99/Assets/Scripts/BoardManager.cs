@@ -112,8 +112,8 @@ public class BoardManager : MonoBehaviour
             var bomb = Instantiate(bombPrefab.gameObject, position, bombPrefab.transform.rotation);
             bomb.transform.localScale = new Vector3(
                 transform.localScale.x * bomb.transform.localScale.x,
-                transform.localScale.y * bomb.transform.localScale.y,
-                bomb.transform.localScale.z);
+                bomb.transform.localScale.y,
+                transform.localScale.y * bomb.transform.localScale.z);
         }
 
     }
