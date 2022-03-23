@@ -15,7 +15,6 @@ public class ClientManager : MonoBehaviour
     private Queue<NetworkMessage> unsentMessages = new Queue<NetworkMessage>();
     private BoardManager rivalBoardManager;
     private bool seedMessageProccessed;
-    private int messagesProcessedCount;
 
     void Start()
     {
@@ -40,8 +39,9 @@ public class ClientManager : MonoBehaviour
         {
             while (unsentMessages.Count > 0)
             {
-                var message = unsentMessages.Dequeue();
-                clientConnection.SendBytes(NetworkUtils.ObjectToByteArray(message));
+                var messageWriter = unsentMessages.Dequeue().BuildMessageWriter();
+                clientConnection.Send(messageWriter);
+                messageWriter.Recycle();
             }
         }
     }
@@ -63,40 +63,46 @@ public class ClientManager : MonoBehaviour
         cellIdsToProcess.Clear();
     }
 
-    public void SendMessage(string msg, int cellId)
+    public void SendCellIdMessage(int cellId)
     {
         if(clientConnection.State != ConnectionState.Connected)
         {
-            unsentMessages.Enqueue(new NetworkMessage() { Text = msg, CellId = cellId });
+            unsentMessages.Enqueue(new CellIdNetworkMessage { CellId = cellId });
             return;
         }
-        clientConnection.SendBytes(NetworkUtils.ObjectToByteArray (new NetworkMessage() { Text = msg, CellId = cellId}));
+        var networkMessage = new CellIdNetworkMessage { CellId = cellId }.BuildMessageWriter();
+        clientConnection.Send(networkMessage);
+        networkMessage.Recycle();
     }
 
-    public void SendSeedMessage(string msg, int seed)
+    public void SendSeedMessage(int seed)
     {
         if (clientConnection.State != ConnectionState.Connected)
         {
-            unsentMessages.Enqueue(new NetworkMessage() { Text = msg, Seed = seed });
+            unsentMessages.Enqueue(new SeedNetworkMessage { Seed = seed });
             return;
         }
-        clientConnection.SendBytes(NetworkUtils.ObjectToByteArray(new NetworkMessage() { Text = msg, Seed = seed }));
+        var networkMessage = new SeedNetworkMessage { Seed = seed }.BuildMessageWriter();
+        clientConnection.Send(networkMessage);
+        networkMessage.Recycle();
     }
 
     void HandleMessage(DataReceivedEventArgs args)
     {
-        var byteArray = new byte[args.Message.Length];
-        Array.Copy(args.Message.Buffer, args.Message.Offset, byteArray, 0, byteArray.Length);
-        var networkMessage = NetworkUtils.ByteArrayToNetworkMessage(byteArray);
-        Debug.Log($"{networkMessage.Text} {networkMessage.CellId} \n connection: {networkMessage.ConnectionId}  seed: {networkMessage.Seed}");
-        if (messagesProcessedCount == 0)
+        var messageReader = args.Message.ReadMessage();
+        switch ((NetworkMessageTypes)messageReader.Tag)
         {
-            cellIdsToProcess.Enqueue(networkMessage.Seed.Value);
+            case NetworkMessageTypes.RivalSeed: 
+                var rivalSeedMessage = RivalSeedNetworkMessage.FromMessageReader(messageReader);
+                cellIdsToProcess.Enqueue(rivalSeedMessage.Seed);
+                Debug.Log($"Rival Seed received: {rivalSeedMessage.Seed}");
+                break;
+            case NetworkMessageTypes.RivalCellId:
+                var rivalCellIdMessage = RivalCellIdNetworkMessage.FromMessageReader(messageReader);
+                cellIdsToProcess.Enqueue(rivalCellIdMessage.CellId);
+                Debug.Log($"Rival Cell Id received: {rivalCellIdMessage.CellId}");
+                break;
+            default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
-        else
-        {
-            cellIdsToProcess.Enqueue(networkMessage.CellId);
-        }
-        messagesProcessedCount++;
     }
 }

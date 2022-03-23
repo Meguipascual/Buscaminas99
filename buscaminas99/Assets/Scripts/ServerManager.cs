@@ -50,9 +50,12 @@ public class ServerManager : MonoBehaviour
         connectionById[newConnectionId] = args.Connection; 
         for (int i = 0; i < nextConnectionId; i++)
         {
-            var message = new NetworkMessage { ConnectionId = i, Seed = seedById[i] };
-            args.Connection.SendBytes(NetworkUtils.ObjectToByteArray(message));
+            var message = new RivalSeedNetworkMessage { ConnectionId = i, Seed = seedById[i] };
+            var messageWriter = message.BuildMessageWriter();
+            args.Connection.Send(messageWriter);
+            message.BuildMessageWriter().Recycle();
         }
+
         nextConnectionId++;
     }
 
@@ -63,26 +66,31 @@ public class ServerManager : MonoBehaviour
 
     private void ProcessMessage(DataReceivedEventArgs args, int connectionId) 
     {
-        var byteArray = new byte[args.Message.Length];
-        Array.Copy(args.Message.Buffer, args.Message.Offset, byteArray, 0, byteArray.Length);
-        var networkMessage = NetworkUtils.ByteArrayToNetworkMessage(byteArray);
-        Debug.Log(networkMessage.Text + " " + networkMessage.CellId);
-        //cellIdsToProcess.Add(networkMessage.CellId);
-        Debug.Log($"Connection id: {connectionId}");
-        if (networkMessage.Seed.HasValue)
+        var messageReader = args.Message.ReadMessage();
+        NetworkMessage networkMessage;
+        switch ((NetworkMessageTypes)messageReader.Tag)
         {
-            seedById[connectionId] = networkMessage.Seed.Value;
+            case NetworkMessageTypes.Seed:
+                var seedMessage = SeedNetworkMessage.FromMessageReader(messageReader);
+                networkMessage = new RivalSeedNetworkMessage { ConnectionId = connectionId, Seed = seedMessage.Seed };
+                Debug.Log($"Rival Seed received: {seedMessage.Seed}");
+                break;
+            case NetworkMessageTypes.CellId:
+                var cellIdMessage = CellIdNetworkMessage.FromMessageReader(messageReader);
+                networkMessage = new RivalCellIdNetworkMessage { ConnectionId = connectionId, CellId = cellIdMessage.CellId };
+                Debug.Log($"Rival Cell Id received: {cellIdMessage.CellId}");
+                break;
+            default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
-        networkMessage.ConnectionId = connectionId;
-        byteArray = NetworkUtils.ObjectToByteArray(networkMessage);
-
-        for(int i= 0; i < nextConnectionId; i++)
+        var messageWriter = networkMessage.BuildMessageWriter();
+        for (int i= 0; i < nextConnectionId; i++)
         {
             if(connectionId != i)
             {
-                connectionById[i].SendBytes(byteArray);
+                connectionById[i].Send(messageWriter);
             }
         }
+        messageWriter.Recycle();
     }
 
     

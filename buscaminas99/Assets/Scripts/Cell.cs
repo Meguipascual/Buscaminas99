@@ -38,8 +38,7 @@ public class Cell : MonoBehaviour
     {
         if (gameManager.IsPlayerAlive && !boardManager.IsRivalBoard)
         {
-            var message = $"{id} x = {transform.position.x} y = {transform.position.y}";
-            clientManager.SendMessage(message, id);
+            clientManager.SendCellIdMessage(id);
             UseCell();
         }
     }

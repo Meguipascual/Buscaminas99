@@ -39,7 +39,7 @@ public class BoardManager : MonoBehaviour
             var seedRandom = new Random();
             var seed=seedRandom.Next();
             
-            FindObjectOfType<ClientManager>().SendSeedMessage("", seed);
+            FindObjectOfType<ClientManager>().SendSeedMessage(seed);
             GenerateBombs(seed);
         }
         
