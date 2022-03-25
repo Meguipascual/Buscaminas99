@@ -31,9 +31,6 @@ public class Cell : MonoBehaviour
         this.boardManager = boardManager;
     }
 
-    /// <summary>
-    /// Destroys the clicked cell
-    /// </summary>
     private void OnMouseDown()
     {
         if (gameManager.IsPlayerAlive && !boardManager.IsRivalBoard)
@@ -45,18 +42,19 @@ public class Cell : MonoBehaviour
 
     public void UseCell()
     {
-        Destroy(gameObject);
         if (boardManager.BombExists(gameObject.transform.position))
         {
+            DestroyCell();
             if (!boardManager.IsRivalBoard)
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
                 gameManager.IsPlayerAlive = false;
-                gameManager.deadText.gameObject.SetActive(true);
+                gameManager.gameOutcomeText.gameObject.SetActive(true);
             }
         }
         else
         {
+            DisplayBombsNear();
             Debug.Log("It's aliiiiiiiive");
             boardManager.RevealNeighbourCells(this);
         }
@@ -104,24 +102,35 @@ public class Cell : MonoBehaviour
         {
             return;
         }
+
         foreach (var neighbourPosition in CalculateEightNeighbourCellPositions())
         {
             if (boardManager.BombExists(neighbourPosition)) {
                 num++;
             }
         }
+
         if (num == 0)
         {
             boardManager.RevealNeighbourCells(this);
-            Destroy(this.gameObject);
         }
         else
         {
             number.text = num.ToString();
+
             number.gameObject.SetActive(true);
         }
+        DestroyCell();
+    }
 
-        
+    private void DestroyCell()
+    {
+        Destroy(this.gameObject);
+
+        if (!boardManager.IsRivalBoard)
+        {
+            gameManager.TrackCellRevealed(Id);
+        }
     }
 
     public IEnumerable<Vector3> CalculateEightNeighbourCellPositions() {

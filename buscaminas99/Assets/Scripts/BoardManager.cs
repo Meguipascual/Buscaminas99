@@ -11,9 +11,10 @@ using Random = System.Random;
 public class BoardManager : MonoBehaviour
 {
 
-    [SerializeField] private Cell cellPrefab;
+    [SerializeField] private GameObject cellPrefab;
     [SerializeField] private Bomb bombPrefab;
     [SerializeField] Transform boardCenter;
+    private GameManager gameManager;
     private readonly int numberOfBombs = 18;//Amount of bombs to create
     private readonly int numberOfColumns = 11;//Table columns
     private readonly int numberOfRows = 11;//Table rows
@@ -31,6 +32,7 @@ public class BoardManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
         BoardCenterPosition = boardCenter.position;
         Scale = transform.localScale.x;
         GenerateCells();
@@ -42,7 +44,11 @@ public class BoardManager : MonoBehaviour
             FindObjectOfType<ClientManager>().SendSeedMessage(seed);
             GenerateBombs(seed);
         }
-        
+
+        if (!IsRivalBoard)
+        {
+            gameManager.SetBoardFeatures(numberOfBombs, numberOfColumns * numberOfRows);
+        }
     }
 
     public void RegisterCell(Cell cell)
@@ -67,7 +73,7 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < numberOfRows; j++)
             {
-                var cell = Instantiate<Cell>(cellPrefab, initialPosition, cellPrefab.transform.rotation);
+                var cell = Instantiate(cellPrefab, initialPosition, cellPrefab.transform.rotation).GetComponentInChildren<Cell>();
                 cell.SetBoardManager(this);
                 cell.transform.localScale = new Vector3(
                     transform.localScale.x * cell.transform.localScale.x,
