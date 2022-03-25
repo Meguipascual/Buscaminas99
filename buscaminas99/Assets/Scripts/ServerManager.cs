@@ -73,6 +73,7 @@ public class ServerManager : MonoBehaviour
             case NetworkMessageTypes.Seed:
                 var seedMessage = SeedNetworkMessage.FromMessageReader(messageReader);
                 networkMessage = new RivalSeedNetworkMessage { ConnectionId = connectionId, Seed = seedMessage.Seed };
+                seedById[connectionId] = seedMessage.Seed;
                 Debug.Log($"Rival Seed received: {seedMessage.Seed}");
                 break;
             case NetworkMessageTypes.CellId:
