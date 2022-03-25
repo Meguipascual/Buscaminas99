@@ -48,9 +48,12 @@ public class Cell : MonoBehaviour
         Destroy(gameObject);
         if (boardManager.BombExists(gameObject.transform.position))
         {
-            Debug.Log("GameOver, te has murido muy fuerte");
-            gameManager.IsPlayerAlive = false;
-            gameManager.deadText.gameObject.SetActive(true);
+            if (!boardManager.IsRivalBoard)
+            {
+                Debug.Log("GameOver, te has murido muy fuerte");
+                gameManager.IsPlayerAlive = false;
+                gameManager.deadText.gameObject.SetActive(true);
+            }
         }
         else
         {
