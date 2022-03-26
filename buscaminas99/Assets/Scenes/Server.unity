@@ -411,31 +411,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &782269191 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8086302885604324313, guid: 071aa7a788180d946b43dfd623cc619a, type: 3}
-  m_PrefabInstance: {fileID: 1073030555}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &782269192
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 782269191}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccd1200119d67374da6ab098b2fbe284, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cellPrefab: {fileID: -2205625611416171799, guid: 17971c9d7d093fb47a25918958c6d3c9, type: 3}
-  bombPrefab: {fileID: 2069316357052312468, guid: ea3c355f5945b7342899fac483032506, type: 3}
-  boardCenter: {fileID: 782269193}
---- !u!4 &782269193 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8086302885604324312, guid: 071aa7a788180d946b43dfd623cc619a, type: 3}
-  m_PrefabInstance: {fileID: 1073030555}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &844151236
 GameObject:
   m_ObjectHideFlags: 0
@@ -1345,7 +1320,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1898096558
 RectTransform:
   m_ObjectHideFlags: 0

@@ -42,6 +42,8 @@ public class ClientManager : MonoBehaviour
 
         if (mustRestartScene)
         {
+            clientConnection.Disconnect("Game Finished");
+            clientConnection.Dispose();
             SceneManager.LoadScene(SceneNames.Client);
         }
     }

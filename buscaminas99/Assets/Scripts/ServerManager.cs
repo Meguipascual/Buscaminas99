@@ -10,37 +10,17 @@ using UnityEngine;
 
 public class ServerManager : MonoBehaviour
 {
-    private BoardManager boardManager;
     private UdpConnectionListener connectionListener;
-    private List<int> cellIdsToProcess = new List<int>();
-    private bool seedMessageProccessed;
     private int nextConnectionId;
     private Dictionary<int, Connection> connectionById = new Dictionary<int, Connection>();
     private Dictionary<int, int> seedById = new Dictionary<int, int>();
 
     // Start is called before the first frame update
     void Start()
-    {
-        boardManager = FindObjectOfType<BoardManager>(); 
+    { 
         connectionListener = new UdpConnectionListener(new IPEndPoint(IPAddress.Any, 6501));
         connectionListener.NewConnection += HandleNewConnection;
         connectionListener.Start();
-    }
-
-    private void Update()
-    {
-        foreach (var cellId in cellIdsToProcess)
-        {
-            if (!seedMessageProccessed)
-            {
-                boardManager.GenerateBombs(cellId);
-                seedMessageProccessed = true;
-                continue;
-            }
-            var cell = boardManager.GetCell(cellId);
-            cell.UseCell();
-        }
-        cellIdsToProcess.Clear();
     }
 
     private void HandleNewConnection(NewConnectionEventArgs args)
@@ -67,6 +47,12 @@ public class ServerManager : MonoBehaviour
 
     private void ProcessMessage(DataReceivedEventArgs args, int connectionId) 
     {
+        if (!connectionById.ContainsKey(connectionId))
+        {
+            Debug.Log($"Message received from connection id {connectionId} not found in dictionary");
+            return;
+        }
+
         var messageReader = args.Message.ReadMessage();
         NetworkMessage networkMessage;
         switch ((NetworkMessageTypes)messageReader.Tag)
@@ -124,5 +110,14 @@ public class ServerManager : MonoBehaviour
         yield return new WaitForSeconds(5);
         Debug.Log("It Waits");
         SendResetGame();
+        ClearClientData();
     }
+
+    private void ClearClientData()
+    {
+        nextConnectionId = 0;
+        connectionById.Clear();
+        seedById.Clear();
+    }
+
 }
