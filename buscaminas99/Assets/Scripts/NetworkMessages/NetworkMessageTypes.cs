@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 
+[Serializable]
 public enum NetworkMessageTypes
 {
     Unknown = 0,
@@ -9,4 +8,6 @@ public enum NetworkMessageTypes
     CellId = 2,
     RivalCellId = 3,
     RivalSeed = 4,
+    ResetGameWarning = 5,
+    ResetGame = 6,
 }

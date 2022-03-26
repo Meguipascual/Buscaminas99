@@ -102,6 +102,12 @@ public class ClientManager : MonoBehaviour
                 cellIdsToProcess.Enqueue(rivalCellIdMessage.CellId);
                 Debug.Log($"Rival Cell Id received: {rivalCellIdMessage.CellId}");
                 break;
+            case NetworkMessageTypes.ResetGame:
+                Debug.Log($"Reset Game message received");
+                break;
+            case NetworkMessageTypes.ResetGameWarning:
+                Debug.Log($"Reset Game Warning message received");
+                break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
     }

@@ -94,5 +94,25 @@ public class ServerManager : MonoBehaviour
         messageWriter.Recycle();
     }
 
+    public void SendResetGameWarning()
+    {
+        BroadcastEmptyMessage(NetworkMessageTypes.ResetGameWarning);
+    }
+
+    public void SendResetGame()
+    {
+        BroadcastEmptyMessage(NetworkMessageTypes.ResetGame);
+    }
     
+    private void BroadcastEmptyMessage(NetworkMessageTypes messageType)
+    {
+        NetworkMessage networkMessage;
+        networkMessage = new EmptyNetworkMessage { NetworkMessageType = messageType};
+        var messageWriter = networkMessage.BuildMessageWriter();
+        for (int i = 0; i < nextConnectionId; i++)
+        {
+            connectionById[i].Send(messageWriter);
+        }
+        messageWriter.Recycle();
+    }
 }
