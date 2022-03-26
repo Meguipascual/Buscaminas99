@@ -1,6 +1,7 @@
 using Hazel;
 using Hazel.Udp;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -97,6 +98,7 @@ public class ServerManager : MonoBehaviour
     public void SendResetGameWarning()
     {
         BroadcastEmptyMessage(NetworkMessageTypes.ResetGameWarning);
+        StartCoroutine(ResetGameAfterWaitTime());
     }
 
     public void SendResetGame()
@@ -114,5 +116,13 @@ public class ServerManager : MonoBehaviour
             connectionById[i].Send(messageWriter);
         }
         messageWriter.Recycle();
+    }
+
+    private IEnumerator ResetGameAfterWaitTime()
+    {
+        Debug.Log("It Starts");
+        yield return new WaitForSeconds(5);
+        Debug.Log("It Waits");
+        SendResetGame();
     }
 }

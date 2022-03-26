@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Hazel;
 using System;
+using UnityEngine.SceneManagement;
 
 public class ClientManager : MonoBehaviour
 {
@@ -14,7 +15,8 @@ public class ClientManager : MonoBehaviour
     private Queue<int> cellIdsToProcess = new Queue<int>();
     private Queue<NetworkMessage> unsentMessages = new Queue<NetworkMessage>();
     private BoardManager rivalBoardManager;
-    private bool seedMessageProccessed;
+    private bool mustRestartScene;
+    private int? rivalSeed;
 
     void Start()
     {
@@ -29,8 +31,19 @@ public class ClientManager : MonoBehaviour
 
     private void Update()
     {
+        if (rivalSeed.HasValue)
+        {
+            rivalBoardManager.GenerateBombs(rivalSeed.Value);
+            rivalSeed = null;
+        }
+
         SendPendingMessages();
         ProcessRivalCellIds();
+
+        if (mustRestartScene)
+        {
+            SceneManager.LoadScene(SceneNames.Client);
+        }
     }
 
     private void SendPendingMessages()
@@ -51,12 +64,6 @@ public class ClientManager : MonoBehaviour
         while (cellIdsToProcess.Count > 0)
         {
             var cellId = cellIdsToProcess.Dequeue();
-            if (!seedMessageProccessed)
-            {
-                rivalBoardManager.GenerateBombs(cellId);
-                seedMessageProccessed = true;
-                continue;
-            }
             var cell = rivalBoardManager.GetCell(cellId);
             cell.UseCell();
         }
@@ -94,7 +101,7 @@ public class ClientManager : MonoBehaviour
         {
             case NetworkMessageTypes.RivalSeed: 
                 var rivalSeedMessage = RivalSeedNetworkMessage.FromMessageReader(messageReader);
-                cellIdsToProcess.Enqueue(rivalSeedMessage.Seed);
+                rivalSeed = rivalSeedMessage.Seed;
                 Debug.Log($"Rival Seed received: {rivalSeedMessage.Seed}");
                 break;
             case NetworkMessageTypes.RivalCellId:
@@ -104,6 +111,7 @@ public class ClientManager : MonoBehaviour
                 break;
             case NetworkMessageTypes.ResetGame:
                 Debug.Log($"Reset Game message received");
+                mustRestartScene = true;
                 break;
             case NetworkMessageTypes.ResetGameWarning:
                 Debug.Log($"Reset Game Warning message received");
