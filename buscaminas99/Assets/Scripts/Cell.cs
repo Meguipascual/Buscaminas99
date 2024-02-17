@@ -4,23 +4,24 @@ using UnityEngine;
 
 public class Cell : MonoBehaviour
 {
-    public GameObject flag;
-    private GameManager gameManager;
-    public TextMesh number;
-    private int id;
-    private int num = 0;
-    private Vector3[] variations = new Vector3[8];
+    [SerializeField] private GameObject _flag;
+    private GameManager _gameManager;
+    [SerializeField] private TextMesh _number;
+    [SerializeField] private MeshRenderer _renderer;
+    private int _id;
+    private int _numberSurroundingBombs;
+    private bool _isCellExplored;
+    private Vector3[] _variations = new Vector3[8];
 
-    public int Id => id;
+    public int Id => _id;
 
     // Start is called before the first frame update
     void Start()
     {
         FillVariations();
-        gameManager = FindObjectOfType<GameManager>();
-        id = gameManager.GenerateId(gameObject.transform.position);
-        gameManager.RegisterCell(this);
-        DisplayBombsNear(gameObject.transform.position);
+        _gameManager = FindObjectOfType<GameManager>();
+        _id = _gameManager.GenerateId(gameObject.transform.position);
+        _gameManager.RegisterCell(this);
     }
 
     /// <summary>
@@ -28,13 +29,21 @@ public class Cell : MonoBehaviour
     /// </summary>
     private void OnMouseDown()
     {
-        if (gameManager.IsPlayerAlive)
+        if (_isCellExplored) { return; }
+
+        if (!_gameManager.AreBombsGenerated)
         {
-            Destroy(gameObject);
-            if (gameManager.BombExists(gameObject.transform.position)) 
+            _gameManager.GenerateBombs(_id);
+        }
+
+        if (_gameManager.IsPlayerAlive)
+        {
+            DisplayBombsNear(gameObject.transform.position);
+            
+            if (_gameManager.BombExists(gameObject.transform.position)) 
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
-                gameManager.IsPlayerAlive = false;
+                _gameManager.IsPlayerAlive = false;
             }
             else
             {
@@ -50,9 +59,9 @@ public class Cell : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1)) 
         {
-            if (gameManager.IsPlayerAlive)
+            if (_gameManager.IsPlayerAlive)
             {
-                Instantiate(flag, gameObject.transform.position, transform.rotation);
+                Instantiate(_flag, gameObject.transform.position, transform.rotation);
                 //controlar que solo se pueda crear una flag haciendo que si le vuelve a dar la elimine en vez de crear otra
             }
         }
@@ -63,14 +72,14 @@ public class Cell : MonoBehaviour
     /// </summary>
     private void FillVariations()
     {
-        variations[0] = new Vector3(-5, 0);
-        variations[1] = new Vector3(-5, 5);
-        variations[2] = new Vector3(-5, -5);
-        variations[3] = new Vector3(0, -5);
-        variations[4] = new Vector3(0, 5);
-        variations[5] = new Vector3(5, -5);
-        variations[6] = new Vector3(5, 0);
-        variations[7] = new Vector3(5, 5);
+        _variations[0] = new Vector3(-5, 0);
+        _variations[1] = new Vector3(-5, 5);
+        _variations[2] = new Vector3(-5, -5);
+        _variations[3] = new Vector3(0, -5);
+        _variations[4] = new Vector3(0, 5);
+        _variations[5] = new Vector3(5, -5);
+        _variations[6] = new Vector3(5, 0);
+        _variations[7] = new Vector3(5, 5);
     }
 
     /// <summary>
@@ -79,26 +88,53 @@ public class Cell : MonoBehaviour
     /// <param name="position"></param>
     private void DisplayBombsNear(Vector3 position)
     {
-        if (gameManager.BombExists(position))
+        if (_isCellExplored)
         {
             return;
         }
+
+        _renderer.enabled = false;
+        _isCellExplored = true;
+
+        if (_gameManager.BombExists(position))
+        {
+            return;
+        }
+        
         for (int i = 0; i < 8; i++) 
         {
-            var auxX = position.x + variations[i].x;
-            var auxY = position.y + variations[i].y;
-            if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25) && gameManager.BombExists(position + variations[i])) 
+            var auxX = position.x + _variations[i].x;
+            var auxY = position.y + _variations[i].y;
+            if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25) && _gameManager.BombExists(position + _variations[i])) 
             {
-                num++;
+                _numberSurroundingBombs++;
             }
         }
-        number.text = num.ToString();
-        number.gameObject.SetActive(true);
+
+        if (_numberSurroundingBombs > 0)
+        {
+            _number.text = _numberSurroundingBombs.ToString();
+            _number.gameObject.SetActive(true);
+        }
+
+        if(_numberSurroundingBombs == 0)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                var auxX = position.x + _variations[i].x;
+                var auxY = position.y + _variations[i].y;
+                var newCellId = _gameManager.GenerateId(new Vector3(auxX, auxY, 0));
+                if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25))
+                {
+                    _gameManager.GetCell(newCellId).DisplayBombsNear(new Vector3(auxX, auxY, 0));
+                }
+            }
+        }
     }
 
     public void ModifyById(int sentId)
     {
-        if (id == sentId)
+        if (_id == sentId)
         {
             //cositas
             /*

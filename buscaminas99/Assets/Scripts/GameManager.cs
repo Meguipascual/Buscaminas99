@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     List<int> allIds = new List<int>();//List of all ids 
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();
 
+    public bool AreBombsGenerated { get; set; }
     public bool IsPlayerAlive
     { 
         get => isPlayerAlive; 
@@ -27,7 +28,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         GenerateCells();
-        GenerateBombs(bombsNumber);
     }
 
     public void RegisterCell(Cell cell)
@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
         }
         
     }
-    void GenerateBombs(int bombsAmount)
+    public void GenerateBombs(int startingCellID)
     {
         Vector3 pos;
 
@@ -80,20 +80,27 @@ public class GameManager : MonoBehaviour
             Shuffle(allIds);
         }
 
+        var nextBombIndex = 0;
+
         //Generates an amount of bombs defined by bombsAmount
-        for (int j = 0; j < bombsAmount; j++)
+        while (bombs.Count < bombsNumber)
         {
-            //Adds the bomb's ids to our list of bombs so we can know where they are 
-            bombs.Add(allIds[j]);
+            if (allIds[nextBombIndex] == startingCellID)
+            {
+                nextBombIndex++;
+                continue;
+            }
+            bombs.Add(allIds[nextBombIndex]);
 
             //Generates our bomb position from its id
-            pos = CalculatePosition(allIds[j]);
+            pos = CalculatePosition(allIds[nextBombIndex]);
             pos.z = 0.95f;
 
             //Creates the bomb
             Instantiate(bombPrefab.gameObject, pos, bombPrefab.transform.rotation);
+            nextBombIndex++;
         }
-        
+        AreBombsGenerated = true;
     }
 
     /// <summary>
