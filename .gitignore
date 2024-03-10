@@ -18,6 +18,9 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+#User settings
+*/UserSettings/*
+
 # VSCode files
 Assets/VSCode*
 
