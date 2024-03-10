@@ -18,15 +18,18 @@ public class ClientManager : MonoBehaviour
     private bool mustRestartScene;
     private int? rivalSeed;
 
-    void Start()
-    {
-        string serverIp = "78.45.45.231";
-        // IPAddress.Parse(serverIp) volver a ponerlo en vez de lo de alberto para futuras pruebas locales de server
+    void Start() {
+        var ipAddress = IPAddress.Loopback; // For localhost, replace with GetIPAddress(x.x.x.x) and the proper ip for online tests
         FindObjectOfType<NetworkManager>().IsClient = true;
         rivalBoardManager = GameObject.FindGameObjectWithTag(Tags.RivalBoard).GetComponent<BoardManager>();
-        clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(IPAddress.Loopback, 6501));
+        clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(ipAddress, ServerManager.Port));
         clientConnection.DataReceived += HandleMessage;
         clientConnection.ConnectAsync();
+    }
+
+    // DO NOT DELETE - We'll use this when we want to use real online multiplayer
+    private IPAddress GetIPAddress(string serverIp) {
+        return IPAddress.Parse(serverIp);
     }
 
     private void Update()

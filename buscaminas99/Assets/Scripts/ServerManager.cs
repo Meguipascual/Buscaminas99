@@ -8,8 +8,9 @@ using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
-public class ServerManager : MonoBehaviour
-{
+public class ServerManager : MonoBehaviour {
+    public const int Port = 6501;
+    
     private UdpConnectionListener connectionListener;
     private int nextConnectionId;
     private Dictionary<int, Connection> connectionById = new Dictionary<int, Connection>();
@@ -18,7 +19,7 @@ public class ServerManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     { 
-        connectionListener = new UdpConnectionListener(new IPEndPoint(IPAddress.Any, 6501));
+        connectionListener = new UdpConnectionListener(new IPEndPoint(IPAddress.Any, Port));
         connectionListener.NewConnection += HandleNewConnection;
         connectionListener.Start();
     }
