@@ -1,63 +1,82 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Cell : MonoBehaviour
 {
     [SerializeField] private GameObject _flag;
-    private GameManager _gameManager;
     [SerializeField] private TextMesh _number;
     [SerializeField] private MeshRenderer _renderer;
+    
+    private GameManager _gameManager;
+    private BoardManager _boardManager;
+    private ClientManager _clientManager;
+
     private int _id;
-    private int _numberSurroundingBombs;
     private bool _isCellExplored;
-    private Vector3[] _variations = new Vector3[8];
+    
+    private Vector3[] eightVariations = new Vector3[8];
+    private Vector3[] fourVariations = new Vector3[4];
 
     public int Id => _id;
 
     // Start is called before the first frame update
     void Start()
     {
-        FillVariations();
         _gameManager = FindObjectOfType<GameManager>();
-        _id = _gameManager.GenerateId(gameObject.transform.position);
-        _gameManager.RegisterCell(this);
+        _clientManager = FindObjectOfType<ClientManager>();
+        FillVariations();
+        _id = _boardManager.GenerateId(gameObject.transform.position);
+        _boardManager.RegisterCell(this);
     }
 
-    /// <summary>
-    /// Destroys the clicked cell
-    /// </summary>
+    public void SetBoardManager(BoardManager boardManager)
+    {
+        this._boardManager = boardManager;
+    }
+
     private void OnMouseDown()
     {
-        if (_isCellExplored) { return; }
+        if (_isCellExplored || _boardManager.IsRivalBoard) { return; }
 
-        if (!_gameManager.AreBombsGenerated)
+        if (!_boardManager.AreBombsGenerated)
         {
-            _gameManager.GenerateBombs(_id);
+            _boardManager.GenerateBombs(_id);
         }
-
+        
         if (_gameManager.IsPlayerAlive)
         {
-            DisplayBombsNear(gameObject.transform.position);
-            
-            if (_gameManager.BombExists(gameObject.transform.position)) 
+            _clientManager.SendCellIdMessage(_id);
+            UseCell();
+        }
+    }
+
+    public void UseCell()
+    {
+        if (_boardManager.BombExists(gameObject.transform.position))
+        {
+            DestroyCell();
+            if (!_boardManager.IsRivalBoard)
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
                 _gameManager.IsPlayerAlive = false;
-            }
-            else
-            {
-                Debug.Log("It's aliiiiiiiive");
+                _gameManager.gameOutcomeText.gameObject.SetActive(true);
             }
         }
-    }
+        else
+        {
+            DisplayBombsNear();
+            Debug.Log("It's aliiiiiiiive");
+            _boardManager.RevealNeighbourCells(this);
+        }
+    }  
 
+    
     /// <summary>
     /// Puts or removes flags when right click
     /// </summary>
     private void OnMouseOver()
     {
-        if (Input.GetMouseButtonDown(1)) 
+        if (Input.GetMouseButtonDown(1))
         {
             if (_gameManager.IsPlayerAlive)
             {
@@ -72,78 +91,77 @@ public class Cell : MonoBehaviour
     /// </summary>
     private void FillVariations()
     {
-        _variations[0] = new Vector3(-5, 0);
-        _variations[1] = new Vector3(-5, 5);
-        _variations[2] = new Vector3(-5, -5);
-        _variations[3] = new Vector3(0, -5);
-        _variations[4] = new Vector3(0, 5);
-        _variations[5] = new Vector3(5, -5);
-        _variations[6] = new Vector3(5, 0);
-        _variations[7] = new Vector3(5, 5);
+        eightVariations[0] = new Vector3(-_boardManager.CellSize, 0);
+        eightVariations[1] = new Vector3(-_boardManager.CellSize, _boardManager.CellSize);
+        eightVariations[2] = new Vector3(-_boardManager.CellSize, -_boardManager.CellSize);
+        eightVariations[3] = new Vector3(0, -_boardManager.CellSize);
+        eightVariations[4] = new Vector3(0, _boardManager.CellSize);
+        eightVariations[5] = new Vector3(_boardManager.CellSize, -_boardManager.CellSize);
+        eightVariations[6] = new Vector3(_boardManager.CellSize, 0);
+        eightVariations[7] = new Vector3(_boardManager.CellSize, _boardManager.CellSize);
     }
 
     /// <summary>
     /// Displays a number that represents how many bombs are nearby
     /// </summary>
-    /// <param name="position"></param>
-    private void DisplayBombsNear(Vector3 position)
+    public void DisplayBombsNear()
     {
         if (_isCellExplored)
         {
             return;
         }
-
-        _renderer.enabled = false;
+        
         _isCellExplored = true;
 
-        if (_gameManager.BombExists(position))
+        var position = gameObject.transform.position;
+        var num = 0;
+        if (_boardManager.BombExists(position))
         {
             return;
         }
-        
-        for (int i = 0; i < 8; i++) 
+
+        foreach (var neighbourPosition in CalculateEightNeighbourCellPositions())
         {
-            var auxX = position.x + _variations[i].x;
-            var auxY = position.y + _variations[i].y;
-            if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25) && _gameManager.BombExists(position + _variations[i])) 
-            {
-                _numberSurroundingBombs++;
+            if (_boardManager.BombExists(neighbourPosition)) {
+                num++;
             }
         }
 
-        if (_numberSurroundingBombs > 0)
+        if (num == 0)
         {
-            _number.text = _numberSurroundingBombs.ToString();
+            _boardManager.RevealNeighbourCells(this);
+        }
+        else
+        {
+            _number.text = num.ToString();
             _number.gameObject.SetActive(true);
         }
+        DestroyCell();
+    }
 
-        if(_numberSurroundingBombs == 0)
+    private void DestroyCell()
+    {
+        _renderer.enabled = false;
+
+        if (!_boardManager.IsRivalBoard)
         {
-            for (int i = 0; i < 8; i++)
+            _gameManager.TrackCellRevealed(Id);
+        }
+    }
+
+    public IEnumerable<Vector3> CalculateEightNeighbourCellPositions() {
+        var position = gameObject.transform.position;
+        for (int i = 0; i < 8; i++)
+        {
+            var auxX = position.x + eightVariations[i].x;
+            var auxY = position.y + eightVariations[i].y;
+            if (auxX >= (_boardManager.BoardCenterPosition.x - _boardManager.BoardHalf) - GlobalConstants.FloatPrecision
+                && auxX <= (_boardManager.BoardCenterPosition.x + _boardManager.BoardHalf) + GlobalConstants.FloatPrecision
+                && auxY >= (_boardManager.BoardCenterPosition.y - _boardManager.BoardHalf) - GlobalConstants.FloatPrecision
+                && auxY <= (_boardManager.BoardCenterPosition.y + _boardManager.BoardHalf) + GlobalConstants.FloatPrecision)
             {
-                var auxX = position.x + _variations[i].x;
-                var auxY = position.y + _variations[i].y;
-                var newCellId = _gameManager.GenerateId(new Vector3(auxX, auxY, 0));
-                if ((auxX >= -25 && auxX <= 25) && (auxY >= -25 && auxY <= 25))
-                {
-                    _gameManager.GetCell(newCellId).DisplayBombsNear(new Vector3(auxX, auxY, 0));
-                }
+                yield return position + eightVariations[i];
             }
         }
     }
-
-    public void ModifyById(int sentId)
-    {
-        if (_id == sentId)
-        {
-            //cositas
-            /*
-            1.Crear una funcion en Cell para mostrar el numero
-            2.Calcular ids de cells de alrededor
-            3.Para cada id, pedir al gameManager la Cell correspondiente y llamar a la función que hemos creado en 1
-            */
-        }
-    }
-
-    
 }
