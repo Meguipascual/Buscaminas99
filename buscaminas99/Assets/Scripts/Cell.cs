@@ -1,62 +1,72 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Cell : MonoBehaviour
 {
-    public GameObject flag;
-    private GameManager gameManager;
-    private BoardManager boardManager;
-    private ClientManager clientManager;
-    public TextMesh number;
-    private int id;
+    [SerializeField] private GameObject _flag;
+    [SerializeField] private TextMesh _number;
+    [SerializeField] private MeshRenderer _renderer;
+    
+    private GameManager _gameManager;
+    private BoardManager _boardManager;
+    private ClientManager _clientManager;
 
+    private int _id;
+    private bool _isCellExplored;
+    
     private Vector3[] eightVariations = new Vector3[8];
     private Vector3[] fourVariations = new Vector3[4];
 
-    public int Id => id;
+    public int Id => _id;
 
     // Start is called before the first frame update
     void Start()
     {
-        gameManager = FindObjectOfType<GameManager>();
-        clientManager = FindObjectOfType<ClientManager>();
+        _gameManager = FindObjectOfType<GameManager>();
+        _clientManager = FindObjectOfType<ClientManager>();
         FillVariations();
-        id = boardManager.GenerateId(gameObject.transform.position);
-        boardManager.RegisterCell(this);
+        _id = _boardManager.GenerateId(gameObject.transform.position);
+        _boardManager.RegisterCell(this);
     }
 
     public void SetBoardManager(BoardManager boardManager)
     {
-        this.boardManager = boardManager;
+        this._boardManager = boardManager;
     }
 
     private void OnMouseDown()
     {
-        if (gameManager.IsPlayerAlive && !boardManager.IsRivalBoard)
+        if (_isCellExplored || _boardManager.IsRivalBoard) { return; }
+
+        if (!_boardManager.AreBombsGenerated)
         {
-            clientManager.SendCellIdMessage(id);
+            _boardManager.GenerateBombs(_id);
+        }
+        
+        if (_gameManager.IsPlayerAlive)
+        {
+            _clientManager.SendCellIdMessage(_id);
             UseCell();
         }
     }
 
     public void UseCell()
     {
-        if (boardManager.BombExists(gameObject.transform.position))
+        if (_boardManager.BombExists(gameObject.transform.position))
         {
             DestroyCell();
-            if (!boardManager.IsRivalBoard)
+            if (!_boardManager.IsRivalBoard)
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
-                gameManager.IsPlayerAlive = false;
-                gameManager.gameOutcomeText.gameObject.SetActive(true);
+                _gameManager.IsPlayerAlive = false;
+                _gameManager.gameOutcomeText.gameObject.SetActive(true);
             }
         }
         else
         {
             DisplayBombsNear();
             Debug.Log("It's aliiiiiiiive");
-            boardManager.RevealNeighbourCells(this);
+            _boardManager.RevealNeighbourCells(this);
         }
     }  
 
@@ -68,9 +78,9 @@ public class Cell : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {
-            if (gameManager.IsPlayerAlive)
+            if (_gameManager.IsPlayerAlive)
             {
-                Instantiate(flag, gameObject.transform.position, transform.rotation);
+                Instantiate(_flag, gameObject.transform.position, transform.rotation);
                 //controlar que solo se pueda crear una flag haciendo que si le vuelve a dar la elimine en vez de crear otra
             }
         }
@@ -81,14 +91,14 @@ public class Cell : MonoBehaviour
     /// </summary>
     private void FillVariations()
     {
-        eightVariations[0] = new Vector3(-boardManager.CellSize, 0);
-        eightVariations[1] = new Vector3(-boardManager.CellSize, boardManager.CellSize);
-        eightVariations[2] = new Vector3(-boardManager.CellSize, -boardManager.CellSize);
-        eightVariations[3] = new Vector3(0, -boardManager.CellSize);
-        eightVariations[4] = new Vector3(0, boardManager.CellSize);
-        eightVariations[5] = new Vector3(boardManager.CellSize, -boardManager.CellSize);
-        eightVariations[6] = new Vector3(boardManager.CellSize, 0);
-        eightVariations[7] = new Vector3(boardManager.CellSize, boardManager.CellSize);
+        eightVariations[0] = new Vector3(-_boardManager.CellSize, 0);
+        eightVariations[1] = new Vector3(-_boardManager.CellSize, _boardManager.CellSize);
+        eightVariations[2] = new Vector3(-_boardManager.CellSize, -_boardManager.CellSize);
+        eightVariations[3] = new Vector3(0, -_boardManager.CellSize);
+        eightVariations[4] = new Vector3(0, _boardManager.CellSize);
+        eightVariations[5] = new Vector3(_boardManager.CellSize, -_boardManager.CellSize);
+        eightVariations[6] = new Vector3(_boardManager.CellSize, 0);
+        eightVariations[7] = new Vector3(_boardManager.CellSize, _boardManager.CellSize);
     }
 
     /// <summary>
@@ -96,40 +106,46 @@ public class Cell : MonoBehaviour
     /// </summary>
     public void DisplayBombsNear()
     {
+        if (_isCellExplored)
+        {
+            return;
+        }
+        
+        _isCellExplored = true;
+
         var position = gameObject.transform.position;
         var num = 0;
-        if (boardManager.BombExists(position))
+        if (_boardManager.BombExists(position))
         {
             return;
         }
 
         foreach (var neighbourPosition in CalculateEightNeighbourCellPositions())
         {
-            if (boardManager.BombExists(neighbourPosition)) {
+            if (_boardManager.BombExists(neighbourPosition)) {
                 num++;
             }
         }
 
         if (num == 0)
         {
-            boardManager.RevealNeighbourCells(this);
+            _boardManager.RevealNeighbourCells(this);
         }
         else
         {
-            number.text = num.ToString();
-
-            number.gameObject.SetActive(true);
+            _number.text = num.ToString();
+            _number.gameObject.SetActive(true);
         }
         DestroyCell();
     }
 
     private void DestroyCell()
     {
-        Destroy(this.gameObject);
+        _renderer.enabled = false;
 
-        if (!boardManager.IsRivalBoard)
+        if (!_boardManager.IsRivalBoard)
         {
-            gameManager.TrackCellRevealed(Id);
+            _gameManager.TrackCellRevealed(Id);
         }
     }
 
@@ -139,10 +155,10 @@ public class Cell : MonoBehaviour
         {
             var auxX = position.x + eightVariations[i].x;
             var auxY = position.y + eightVariations[i].y;
-            if (auxX >= (boardManager.BoardCenterPosition.x - boardManager.BoardHalf) - GlobalConstants.FloatPrecision
-                && auxX <= (boardManager.BoardCenterPosition.x + boardManager.BoardHalf) + GlobalConstants.FloatPrecision
-                && auxY >= (boardManager.BoardCenterPosition.y - boardManager.BoardHalf) - GlobalConstants.FloatPrecision
-                && auxY <= (boardManager.BoardCenterPosition.y + boardManager.BoardHalf) + GlobalConstants.FloatPrecision)
+            if (auxX >= (_boardManager.BoardCenterPosition.x - _boardManager.BoardHalf) - GlobalConstants.FloatPrecision
+                && auxX <= (_boardManager.BoardCenterPosition.x + _boardManager.BoardHalf) + GlobalConstants.FloatPrecision
+                && auxY >= (_boardManager.BoardCenterPosition.y - _boardManager.BoardHalf) - GlobalConstants.FloatPrecision
+                && auxY <= (_boardManager.BoardCenterPosition.y + _boardManager.BoardHalf) + GlobalConstants.FloatPrecision)
             {
                 yield return position + eightVariations[i];
             }

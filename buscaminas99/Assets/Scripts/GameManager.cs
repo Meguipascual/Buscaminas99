@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
 
     public void Reset()
     {
-        SceneManager.LoadScene("MineSweeper");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void SetBoardFeatures(int numOfBombs, int numOfCells)

@@ -22,12 +22,13 @@ public class BoardManager : MonoBehaviour
     List<int> cellIdsWithBombs = new List<int>();//Ids' list that have a bomb 
     List<int> allCellIds = new List<int>();//List of all ids 
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();//Dictionary that relates an ID with its Cell
-    HashSet<int> revealedCellIds = new HashSet<int>();//HashSet that Stores all the revealed ID cells
     public Vector2 BoardCenterPosition { get; private set; }
     public bool IsRivalBoard => gameObject.CompareTag(Tags.RivalBoard);
     public float Scale { get; private set; }
     public float CellSize => Scale * 5;
     public float BoardHalf => CellSize * (numberOfColumns - 1) / 2;
+    public bool AreBombsGenerated { get; set; }
+    public int Seed { get; set; }
 
     // Start is called before the first frame update
     void Start()
@@ -39,10 +40,9 @@ public class BoardManager : MonoBehaviour
         if (FindObjectOfType<NetworkManager>().IsClient && !IsRivalBoard) 
         { 
             var seedRandom = new Random();
-            var seed=seedRandom.Next();
+            Seed=seedRandom.Next();
             
-            FindObjectOfType<ClientManager>().SendSeedMessage(seed);
-            GenerateBombs(seed);
+            FindObjectOfType<ClientManager>().SendSeedMessage(Seed);
         }
 
         if (!IsRivalBoard)
@@ -86,9 +86,9 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    public void GenerateBombs(int seed)
+    public void GenerateBombs(int? startingCellID = null)
     {
-        random = new Random(seed);
+        random = new Random(Seed);
         var position = new Vector3();
 
         //Fills up the list
@@ -105,15 +105,22 @@ public class BoardManager : MonoBehaviour
         {
             Shuffle(allCellIds);
         }
+        
+        var nextBombIndex = 0;
 
         //Generates an amount of bombs defined by bombsAmount
-        for (int j = 0; j < numberOfBombs; j++)
+        while (cellIdsWithBombs.Count < numberOfBombs)
         {
             //Adds the bomb's ids to our list of bombs so we can know where they are 
-            cellIdsWithBombs.Add(allCellIds[j]);
+            if (allCellIds[nextBombIndex] == startingCellID)
+            {
+                nextBombIndex++;
+                continue;
+            }
+            cellIdsWithBombs.Add(allCellIds[nextBombIndex]);
 
             //Generates our bomb position from its id
-            position = CalculatePosition(allCellIds[j]);
+            position = CalculatePosition(allCellIds[nextBombIndex]);
             position.z = 0.95f;
 
             //Creates the bomb
@@ -122,7 +129,10 @@ public class BoardManager : MonoBehaviour
                 transform.localScale.x * bomb.transform.localScale.x,
                 bomb.transform.localScale.y,
                 transform.localScale.y * bomb.transform.localScale.z);
+            nextBombIndex++;
         }
+
+        AreBombsGenerated = true;
     }
 
     /// <summary>
@@ -189,11 +199,6 @@ public class BoardManager : MonoBehaviour
         foreach (var neighbourCellPosition in cell.CalculateEightNeighbourCellPositions())
         {
             var idNeighbourCell = GenerateId(neighbourCellPosition);
-            if (revealedCellIds.Contains(idNeighbourCell))
-            {
-                continue;
-            }
-            revealedCellIds.Add(idNeighbourCell);
             cellById[idNeighbourCell].DisplayBombsNear();
         }
     }

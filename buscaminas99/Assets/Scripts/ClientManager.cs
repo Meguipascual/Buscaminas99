@@ -31,9 +31,9 @@ public class ClientManager : MonoBehaviour
 
     private void Update()
     {
-        if (rivalSeed.HasValue)
-        {
-            rivalBoardManager.GenerateBombs(rivalSeed.Value);
+        if (rivalSeed.HasValue) {
+            rivalBoardManager.Seed = rivalSeed.Value;
+            rivalBoardManager.GenerateBombs();
             rivalSeed = null;
         }
 
