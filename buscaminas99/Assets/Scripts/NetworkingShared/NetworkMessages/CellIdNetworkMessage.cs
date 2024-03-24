@@ -1,7 +1,5 @@
 using Hazel;
 
-namespace ServerCore.Messages; 
-
 public class CellIdNetworkMessage : NetworkMessage
 {
     public int CellId { get; set; }

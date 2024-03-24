@@ -1,10 +1,5 @@
 using Hazel;
 
-namespace ServerCore.Messages; 
-
-/// <summary>
-/// Message used to relay the seed used to randomly generate the player's board.
-/// </summary>
 public class SeedNetworkMessage : NetworkMessage
 {
     public int Seed { get; set; }

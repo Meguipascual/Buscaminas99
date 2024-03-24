@@ -1,7 +1,5 @@
 using Hazel;
 
-namespace ServerCore.Messages; 
-
 public class RivalCellIdNetworkMessage : NetworkMessage
 {
     public int CellId { get; set; }
