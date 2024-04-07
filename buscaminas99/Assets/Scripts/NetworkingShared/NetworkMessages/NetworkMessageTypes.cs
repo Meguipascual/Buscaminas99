@@ -10,4 +10,5 @@ public enum NetworkMessageTypes
     RivalSeed = 4,
     ResetGameWarning = 5,
     ResetGame = 6,
+    ResetServer = 7,
 }

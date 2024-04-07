@@ -13,8 +13,7 @@ public class SeedNetworkMessage : NetworkMessage
         return messageWriter;
     }
 
-    public static SeedNetworkMessage FromMessageReader(MessageReader messageReader)
-    {
+    public static SeedNetworkMessage FromMessageReader(MessageReader messageReader) {
         var message = new SeedNetworkMessage();
         message.Seed = messageReader.ReadInt32();
         return message;

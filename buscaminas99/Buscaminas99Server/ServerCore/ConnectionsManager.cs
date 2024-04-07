@@ -25,6 +25,11 @@ public sealed class ConnectionsManager : IDisposable {
         return Task.CompletedTask;
     }
 
+    public void Reset() {
+        _nextConnectionId = 0;
+        _connectionsById.Clear();
+    }
+
     private async Task HandleNewConnection(NewConnectionEventArgs newConnectionEventArgs) {
         var newConnectionId = _nextConnectionId; 
         Console.WriteLine(newConnectionEventArgs.Connection.EndPoint.Address + ":" + newConnectionEventArgs.Connection.EndPoint.Port);
@@ -51,6 +56,16 @@ public sealed class ConnectionsManager : IDisposable {
             {
                 _connectionsById[i].Send(messageWriter);
             }
+        }
+        messageWriter.Recycle();
+    }
+    
+    public void BroadcastEmptyMessage(NetworkMessageTypes messageType) {
+        NetworkMessage networkMessage = new EmptyNetworkMessage { NetworkMessageType = messageType};
+        var messageWriter = networkMessage.BuildMessageWriter();
+        for (int i = 0; i < _nextConnectionId; i++)
+        {
+            _connectionsById[i].Send(messageWriter);
         }
         messageWriter.Recycle();
     }

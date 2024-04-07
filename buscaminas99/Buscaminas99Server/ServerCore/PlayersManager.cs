@@ -15,6 +15,10 @@ public sealed class PlayersManager : IDisposable {
         _messageHandler.OnSeedNetworkMessageReceived += SetPlayerSeed;
     }
 
+    public void Reset() {
+        _seedsByConnectionId.Clear();
+    }
+
     private Task BroadcastExistingPlayerSeeds(int connectionId) {
         foreach(var keyValuePair in _seedsByConnectionId)
         {

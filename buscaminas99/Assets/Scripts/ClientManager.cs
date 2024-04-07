@@ -1,10 +1,7 @@
 using Hazel.Udp;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Net;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
 using Hazel;
 using System;
 using UnityEngine.SceneManagement;
@@ -18,11 +15,13 @@ public class ClientManager : MonoBehaviour
     private bool mustRestartScene;
     private int? rivalSeed;
 
+    public bool IsOnline => clientConnection.State == ConnectionState.Connected;
+
     void Start() {
         var ipAddress = IPAddress.Loopback; // For localhost, replace with GetIPAddress(x.x.x.x) and the proper ip for online tests
         FindObjectOfType<NetworkManager>().IsClient = true;
         rivalBoardManager = GameObject.FindGameObjectWithTag(Tags.RivalBoard).GetComponent<BoardManager>();
-        clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(ipAddress, ServerManager.Port));
+        clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(ipAddress, 6501));
         clientConnection.DataReceived += HandleMessage;
         clientConnection.ConnectAsync();
     }
@@ -47,7 +46,7 @@ public class ClientManager : MonoBehaviour
         {
             clientConnection.Disconnect("Game Finished");
             clientConnection.Dispose();
-            SceneManager.LoadScene(SceneNames.Client);
+            SceneManager.LoadScene(SceneNames.Game);
         }
     }
 
@@ -77,26 +76,27 @@ public class ClientManager : MonoBehaviour
 
     public void SendCellIdMessage(int cellId)
     {
-        if(clientConnection.State != ConnectionState.Connected)
-        {
-            unsentMessages.Enqueue(new CellIdNetworkMessage { CellId = cellId });
-            return;
-        }
-        var networkMessage = new CellIdNetworkMessage { CellId = cellId }.BuildMessageWriter();
-        clientConnection.Send(networkMessage);
-        networkMessage.Recycle();
+        SendMessage(new CellIdNetworkMessage { CellId = cellId });
     }
 
     public void SendSeedMessage(int seed)
     {
+        SendMessage(new SeedNetworkMessage { Seed = seed });
+    }
+
+    public void RequestServerReset() {
+        SendMessage(new EmptyNetworkMessage(){NetworkMessageType = NetworkMessageTypes.ResetServer});
+    }
+
+    private void SendMessage(NetworkMessage networkMessage) {
         if (clientConnection.State != ConnectionState.Connected)
         {
-            unsentMessages.Enqueue(new SeedNetworkMessage { Seed = seed });
+            unsentMessages.Enqueue(networkMessage);
             return;
         }
-        var networkMessage = new SeedNetworkMessage { Seed = seed }.BuildMessageWriter();
-        clientConnection.Send(networkMessage);
-        networkMessage.Recycle();
+        var networkMessageWriter = networkMessage.BuildMessageWriter();
+        clientConnection.Send(networkMessageWriter);
+        networkMessageWriter.Recycle();
     }
 
     void HandleMessage(DataReceivedEventArgs args)

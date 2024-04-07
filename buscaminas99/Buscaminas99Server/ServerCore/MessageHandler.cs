@@ -8,6 +8,8 @@ public class MessageHandler : IDisposable {
 
     public delegate Task SeedNetworkMessageReceivedDelegate(int connectionId, SeedNetworkMessage seedNetworkMessage);
     public event SeedNetworkMessageReceivedDelegate OnSeedNetworkMessageReceived = null!;
+    public delegate Task ResetServerRequestReceivedDelegate();
+    public event ResetServerRequestReceivedDelegate OnResetServerRequestReceived = null!;
 
     public MessageHandler(ConnectionsManager connectionsManager) {
         _connectionsManager = connectionsManager;
@@ -28,6 +30,10 @@ public class MessageHandler : IDisposable {
                 var cellIdMessage = CellIdNetworkMessage.FromMessageReader(messageReader);
                 networkMessage = new RivalCellIdNetworkMessage { ConnectionId = connectionId, CellId = cellIdMessage.CellId };
                 Console.WriteLine($"Rival Cell Id received: {cellIdMessage.CellId}");
+                break;
+            case NetworkMessageTypes.ResetServer:
+                Console.WriteLine($"Reset server request received");
+                OnResetServerRequestReceived?.Invoke();
                 break;
             default: 
                 Console.WriteLine($"Invalid message tag received: {messageReader.Tag}");

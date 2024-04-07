@@ -7,6 +7,7 @@ Console.WriteLine("Starting server");
 var connectionsManager = new ConnectionsManager();
 var messageHandler = new MessageHandler(connectionsManager);
 var playersManager = new PlayersManager(connectionsManager, messageHandler);
+var serverController = new ServerController(connectionsManager, playersManager, messageHandler);
 
 await connectionsManager.Start();
 
