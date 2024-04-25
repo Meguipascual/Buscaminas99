@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\CellIdNetworkMessage.cs">
+        <Link>CellIdNetworkMessage.cs</Link>
+      </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\EmptyNetworkMessage.cs">
+        <Link>EmptyNetworkMessage.cs</Link>
+      </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\NetworkMessage.cs">
+        <Link>NetworkMessage.cs</Link>
+      </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\NetworkMessageTypes.cs">
+        <Link>NetworkMessageTypes.cs</Link>
+      </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\RivalCellIdNetworkMessage.cs">
+        <Link>RivalCellIdNetworkMessage.cs</Link>
+      </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\RivalSeedNetworkMessage.cs">
+        <Link>RivalSeedNetworkMessage.cs</Link>
+      </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\SeedNetworkMessage.cs">
+        <Link>SeedNetworkMessage.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="innersloth.Hazel-Networking" Version="1.0.5" />
+    </ItemGroup>
+
+</Project>
