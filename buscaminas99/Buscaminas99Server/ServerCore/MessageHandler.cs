@@ -29,6 +29,7 @@ public class MessageHandler : IDisposable {
             case NetworkMessageTypes.CellId:
                 var cellIdMessage = CellIdNetworkMessage.FromMessageReader(messageReader);
                 networkMessage = new RivalCellIdNetworkMessage { ConnectionId = connectionId, CellId = cellIdMessage.CellId };
+
                 Console.WriteLine($"Rival Cell Id received: {cellIdMessage.CellId}");
                 break;
             case NetworkMessageTypes.ResetServer:

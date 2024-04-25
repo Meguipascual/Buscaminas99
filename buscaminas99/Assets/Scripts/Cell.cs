@@ -45,13 +45,16 @@ public class Cell : MonoBehaviour
         
         if (_gameManager.IsPlayerAlive)
         {
-            _clientManager.SendCellIdMessage(_id);
-            UseCell();
+            var discoverCellIds = UseCell();
+            _clientManager.SendCellIdMessage(_id, discoverCellIds);
+            
         }
     }
 
-    public void UseCell()
+    public List<int> UseCell()
     {
+        List<int> revealedCellIds = new List<int>();
+
         if (_boardManager.BombExists(gameObject.transform.position))
         {
             DestroyCell();
@@ -66,8 +69,9 @@ public class Cell : MonoBehaviour
         {
             DisplayBombsNear();
             Debug.Log("It's aliiiiiiiive");
-            _boardManager.RevealNeighbourCells(this);
+            revealedCellIds = _boardManager.RevealNeighbourCells(this);
         }
+        return revealedCellIds;
     }  
 
     
@@ -104,11 +108,12 @@ public class Cell : MonoBehaviour
     /// <summary>
     /// Displays a number that represents how many bombs are nearby
     /// </summary>
-    public void DisplayBombsNear()
+    public List<int> DisplayBombsNear()
     {
+        List<int> discoverCellIds = new List<int>();
         if (_isCellExplored)
         {
-            return;
+            return discoverCellIds;
         }
         
         _isCellExplored = true;
@@ -117,7 +122,7 @@ public class Cell : MonoBehaviour
         var num = 0;
         if (_boardManager.BombExists(position))
         {
-            return;
+            return discoverCellIds;
         }
 
         foreach (var neighbourPosition in CalculateEightNeighbourCellPositions())
@@ -129,7 +134,7 @@ public class Cell : MonoBehaviour
 
         if (num == 0)
         {
-            _boardManager.RevealNeighbourCells(this);
+            discoverCellIds = _boardManager.RevealNeighbourCells(this);
         }
         else
         {
@@ -137,6 +142,8 @@ public class Cell : MonoBehaviour
             _number.gameObject.SetActive(true);
         }
         DestroyCell();
+        discoverCellIds.Add(Id);
+        return discoverCellIds;
     }
 
     private void DestroyCell()

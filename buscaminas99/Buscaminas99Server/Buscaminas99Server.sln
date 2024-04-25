@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buscaminas99Server", "Buscaminas99Server\Buscaminas99Server.csproj", "{ABE891F7-B716-410B-85DE-9EFAD85E19F7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerCore", "ServerCore\ServerCore.csproj", "{5ABF96E3-CB57-417A-8A98-6A8FC0F6B837}"
@@ -24,5 +27,11 @@ Global
 		{CAD50C1D-2B6E-4542-A557-04C86880A88D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAD50C1D-2B6E-4542-A557-04C86880A88D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAD50C1D-2B6E-4542-A557-04C86880A88D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {38EF8733-FFE5-4B64-BE37-9F6868B51213}
 	EndGlobalSection
 EndGlobal

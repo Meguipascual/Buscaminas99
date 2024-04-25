@@ -74,9 +74,9 @@ public class ClientManager : MonoBehaviour
         cellIdsToProcess.Clear();
     }
 
-    public void SendCellIdMessage(int cellId)
+    public void SendCellIdMessage(int cellId, List<int> discoverCellIds)
     {
-        SendMessage(new CellIdNetworkMessage { CellId = cellId });
+        SendMessage(new CellIdNetworkMessage { CellId = cellId, DiscoverCellIds = discoverCellIds});
     }
 
     public void SendSeedMessage(int seed)

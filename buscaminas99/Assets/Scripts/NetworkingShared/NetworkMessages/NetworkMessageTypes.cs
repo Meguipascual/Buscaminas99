@@ -11,4 +11,5 @@ public enum NetworkMessageTypes
     ResetGameWarning = 5,
     ResetGame = 6,
     ResetServer = 7,
+    UndoPlay = 8,
 }

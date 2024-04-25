@@ -194,13 +194,15 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    public void RevealNeighbourCells(Cell cell)
+    public List<int> RevealNeighbourCells(Cell cell)
     {
+        var discoverCellIds = new List<int>();
         foreach (var neighbourCellPosition in cell.CalculateEightNeighbourCellPositions())
         {
             var idNeighbourCell = GenerateId(neighbourCellPosition);
-            cellById[idNeighbourCell].DisplayBombsNear();
+            discoverCellIds.AddRange( cellById[idNeighbourCell].DisplayBombsNear());
         }
+        return discoverCellIds;
     }
 
     /// <summary>
