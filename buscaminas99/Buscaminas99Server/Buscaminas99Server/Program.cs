@@ -1,18 +1,18 @@
-﻿// See https://aka.ms/new-console-template for more information
-
+﻿using Microsoft.Extensions.DependencyInjection;
 using ServerCore;
 
-Console.WriteLine("Starting server");
+await using var services = new ServiceCollection()
+    .AddSingleton<ConnectionsManager>()
+    .AddSingleton<MessageHandler>()
+    .AddSingleton<PlayersManager>()
+    .AddSingleton<ServerController>()
+    .BuildServiceProvider();
 
-var connectionsManager = new ConnectionsManager();
-var messageHandler = new MessageHandler(connectionsManager);
-var playersManager = new PlayersManager(connectionsManager, messageHandler);
-var serverController = new ServerController(connectionsManager, playersManager, messageHandler);
+var connectionsManager = services.GetService<ConnectionsManager>();
+services.GetService<MessageHandler>();
+services.GetService<PlayersManager>();
+services.GetService<ServerController>();
 
-await connectionsManager.Start();
+await connectionsManager!.Start();
 
 Console.ReadLine();
-
-playersManager.Dispose();
-messageHandler.Dispose();
-connectionsManager.Dispose();
