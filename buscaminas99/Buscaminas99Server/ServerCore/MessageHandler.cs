@@ -5,14 +5,16 @@ namespace ServerCore;
 public class MessageHandler : IDisposable {
 
     private readonly ConnectionsManager _connectionsManager;
-    private readonly PlayersManager _playersManager;
 
     public delegate Task SeedNetworkMessageReceivedDelegate(int connectionId, SeedNetworkMessage seedNetworkMessage);
     public event SeedNetworkMessageReceivedDelegate OnSeedNetworkMessageReceived = null!;
     public delegate Task ResetServerRequestReceivedDelegate();
     public event ResetServerRequestReceivedDelegate OnResetServerRequestReceived = null!;
+    public delegate void UndoPlayNetworkMessageReceivedDelegate(int targetPlayerId, UndoPlayNetworkMessage undoPlayNetworkMessage);
+    public event UndoPlayNetworkMessageReceivedDelegate OnUndoPlayNetworkMessageReceived = null!;
 
-    
+
+
 
     public MessageHandler(ConnectionsManager connectionsManager) {
         _connectionsManager = connectionsManager;
@@ -41,11 +43,9 @@ public class MessageHandler : IDisposable {
                 break;
             case NetworkMessageTypes.UndoPlay:
                 var undoPlayMessage = UndoPlayNetworkMessage.FromMessageReader(messageReader);
-                var player = PlayersManager.GetPlayer(undoPlayMessage.TargetPlayerId);
-                var play = player.PopPlay();
-                var message = new UndoMessageCommandNetworkMessage {TargetPlayerId = player.PlayerId ,DiscoverCellIds = play.DiscoverCellIds.ToList()};
-                _connectionsManager.BroadcastMessage(message);
+                OnUndoPlayNetworkMessageReceived.Invoke(connectionId, undoPlayMessage);
                 Console.WriteLine($"Undo server request received");
+
                 break;
             default: 
                 Console.WriteLine($"Invalid message tag received: {messageReader.Tag}");
