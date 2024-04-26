@@ -11,6 +11,11 @@ public sealed class PlayersManager : IDisposable {
     private readonly Dictionary<int, Player> _playersByConnectionId = new();
     private readonly Dictionary<int, int> _seedsByConnectionId = new();
 
+    public delegate Task PlayerAddedDelegate(int playerId);
+    public event PlayerAddedDelegate OnPlayerAdded; 
+
+    public int PlayersCount => _playersByConnectionId.Count;
+
     public PlayersManager(ConnectionsManager connectionsManager, MessageHandler messageHandler) {
         _connectionsManager = connectionsManager;
         _connectionsManager.OnConnectionCreated += HandleNewPlayerConnection;
@@ -46,13 +51,14 @@ public sealed class PlayersManager : IDisposable {
         return Task.CompletedTask;
     }
 
-    private void CreatePlayer(int connectionId)
+    private async Task CreatePlayer(int connectionId)
     {
         var player = new Player();
         player.PlayerId = connectionId;
         _playersByConnectionId.Add(connectionId, player);
         _connectionsManager.SendMessageToConnection(connectionId, new ConnectionACKNetworkMessage { PlayerId = connectionId });
         _connectionsManager.SendMessageToAllConnectionsExceptOne(connectionId, new NewPlayerConnectedNetworkMessage { PlayerId = connectionId });
+        await OnPlayerAdded.Invoke(connectionId);
     }
 
     public void SavePlayerPlay(int connectionId, CellIdNetworkMessage message)

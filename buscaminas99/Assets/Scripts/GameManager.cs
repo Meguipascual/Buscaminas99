@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour {
     private int numberOfCells;
     private int revealedCellsCount;
     private HashSet<int> revealedCellIds = new HashSet<int>();
-    private int _startTimestamp;
+    private long _startTimestamp;
     
     public bool IsPlayerAlive { get; set; } = true; //Simplifies the get/set structure for a boolean to be accesed by other classes
 
@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private void SetStartTimestamp(int startTimestamp) {
+    private void SetStartTimestamp(long startTimestamp) {
         _startTimestamp = startTimestamp;
     }
 }

@@ -60,12 +60,19 @@ public sealed class ConnectionsManager : IDisposable {
         messageWriter.Recycle();
     }
     
+    public void BroadcastMessage(NetworkMessage networkMessage) {
+        var messageWriter = networkMessage.BuildMessageWriter();
+        foreach (var (_, connection) in _connectionsById) {
+            connection.Send(messageWriter);
+        }
+        messageWriter.Recycle();
+    }
+    
     public void BroadcastEmptyMessage(NetworkMessageTypes messageType) {
         NetworkMessage networkMessage = new EmptyNetworkMessage { NetworkMessageType = messageType};
         var messageWriter = networkMessage.BuildMessageWriter();
-        for (int i = 0; i < _nextConnectionId; i++)
-        {
-            _connectionsById[i].Send(messageWriter);
+        foreach (var (_, connection) in _connectionsById) {
+            connection.Send(messageWriter);
         }
         messageWriter.Recycle();
     }

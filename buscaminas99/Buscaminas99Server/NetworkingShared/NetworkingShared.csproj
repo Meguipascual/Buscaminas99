@@ -14,6 +14,9 @@
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\EmptyNetworkMessage.cs">
         <Link>EmptyNetworkMessage.cs</Link>
       </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\GameStartedNetworkMessage.cs">
+        <Link>GameStartedNetworkMessage.cs</Link>
+      </Compile>
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\NetworkMessage.cs">
         <Link>NetworkMessage.cs</Link>
       </Compile>
