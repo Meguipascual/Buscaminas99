@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
@@ -10,6 +10,7 @@
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\CellIdNetworkMessage.cs">
         <Link>CellIdNetworkMessage.cs</Link>
       </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\ConnectionACKNetworkMessage.cs" Link="ConnectionACKNetworkMessage.cs" />
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\EmptyNetworkMessage.cs">
         <Link>EmptyNetworkMessage.cs</Link>
       </Compile>
@@ -19,6 +20,7 @@
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\NetworkMessageTypes.cs">
         <Link>NetworkMessageTypes.cs</Link>
       </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\NewPlayerConnectedNetworkMessage.cs" Link="NewPlayerConnectedNetworkMessage.cs" />
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\RivalCellIdNetworkMessage.cs">
         <Link>RivalCellIdNetworkMessage.cs</Link>
       </Compile>
@@ -28,6 +30,8 @@
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\SeedNetworkMessage.cs">
         <Link>SeedNetworkMessage.cs</Link>
       </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\UndoMessageCommandNetworkMessage.cs" Link="UndoMessageCommandNetworkMessage.cs" />
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\UndoPlayNetworkMessage.cs" Link="UndoPlayNetworkMessage.cs" />
     </ItemGroup>
 
     <ItemGroup>
