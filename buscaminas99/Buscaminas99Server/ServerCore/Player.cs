@@ -8,6 +8,9 @@ namespace ServerCore;
 
 internal class Player
 {
+    public int PlayerId {  get; set; }
+    public int Score { get; set; }
+
     Stack<Play> Plays;
     public void SavePlay(CellIdNetworkMessage cellIdNetworkMessage) 
     {

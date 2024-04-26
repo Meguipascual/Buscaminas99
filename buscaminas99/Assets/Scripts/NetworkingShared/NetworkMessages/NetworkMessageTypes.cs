@@ -12,4 +12,6 @@ public enum NetworkMessageTypes
     ResetGame = 6,
     ResetServer = 7,
     UndoPlay = 8,
+    ConnectionACK = 9,
+    NewPlayerConnected = 10,
 }

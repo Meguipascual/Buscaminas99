@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using static Hazel.Udp.FewerThreads.ThreadLimitedUdpConnectionListener;
 
 namespace ServerCore; 
@@ -48,7 +49,10 @@ public sealed class PlayersManager : IDisposable {
     private void CreatePlayer(int connectionId)
     {
         var player = new Player();
+        player.PlayerId = connectionId;
         _playersByConnectionId.Add(connectionId, player);
+        _connectionsManager.SendMessageToConnection(connectionId, new ConnectionACKNetworkMessage { PlayerId = connectionId });
+        _connectionsManager.SendMessageToAllConnectionsExceptOne(connectionId, new NewPlayerConnectedNetworkMessage { PlayerId = connectionId });
     }
 
     public void SavePlayerPlay(int connectionId, CellIdNetworkMessage message)

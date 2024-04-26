@@ -14,6 +14,8 @@ public class ClientManager : MonoBehaviour
     private BoardManager rivalBoardManager;
     private bool mustRestartScene;
     private int? rivalSeed;
+    private int _playerId;
+    private Dictionary<int, Player> _playersById;
 
     public bool IsOnline => clientConnection.State == ConnectionState.Connected;
 
@@ -120,6 +122,16 @@ public class ClientManager : MonoBehaviour
                 break;
             case NetworkMessageTypes.ResetGameWarning:
                 Debug.Log($"Reset Game Warning message received");
+                break;
+            case NetworkMessageTypes.ConnectionACK:
+                var connectionACKMessage = ConnectionACKNetworkMessage.FromMessageReader( messageReader);
+                _playerId = connectionACKMessage.PlayerId;
+                break;
+            case NetworkMessageTypes.NewPlayerConnected: 
+                var newPlayerConnectedMessage = NewPlayerConnectedNetworkMessage.FromMessageReader( messageReader);
+                var player = new Player();
+                player.PlayerId = newPlayerConnectedMessage.PlayerId;
+                _playersById.Add(newPlayerConnectedMessage.PlayerId, player);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
