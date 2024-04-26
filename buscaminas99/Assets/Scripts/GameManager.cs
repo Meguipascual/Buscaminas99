@@ -34,6 +34,19 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public void Rewind()
+    {
+        if (_clientManager.IsOnline)
+        {
+            Debug.Log("Is online, requesting server to undo previous play");
+            _clientManager.SendUndoPlayMessage();
+        }
+        else
+        {
+            Debug.Log("Is offline, undoing previous play");
+        }
+    }
+
     public void SetBoardFeatures(int numOfBombs, int numOfCells)
     {
         numberOfBombs = numOfBombs; 

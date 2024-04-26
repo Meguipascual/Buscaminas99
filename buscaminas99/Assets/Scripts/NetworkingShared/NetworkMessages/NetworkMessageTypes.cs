@@ -15,4 +15,5 @@ public enum NetworkMessageTypes
     ConnectionACK = 9,
     NewPlayerConnected = 10,
     GameStarted = 11,
+    UndoCommand = 12,
 }

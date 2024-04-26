@@ -3,14 +3,14 @@ using Hazel;
 
 public class UndoMessageCommandNetworkMessage : NetworkMessage
 {
-    public int CellId { get; set; }
+    public int TargetPlayerId { get; set; }
     public List<int> DiscoverCellIds { get; set; }
 
     public override MessageWriter BuildMessageWriter()
     {
         var messageWriter = MessageWriter.Get();
-        messageWriter.StartMessage((byte)NetworkMessageTypes.CellId);
-        messageWriter.Write(CellId);
+        messageWriter.StartMessage((byte)NetworkMessageTypes.UndoCommand);
+        messageWriter.Write(TargetPlayerId);
         messageWriter.Write(DiscoverCellIds.Count);
         foreach (var cellId in DiscoverCellIds) { messageWriter.Write(cellId); }
 
@@ -18,11 +18,11 @@ public class UndoMessageCommandNetworkMessage : NetworkMessage
         return messageWriter;
     }
 
-    public static CellIdNetworkMessage FromMessageReader(MessageReader messageReader)
+    public static UndoMessageCommandNetworkMessage FromMessageReader(MessageReader messageReader)
     {
 
-        var message = new CellIdNetworkMessage();
-        message.CellId = messageReader.ReadInt32();
+        var message = new UndoMessageCommandNetworkMessage();
+        message.TargetPlayerId = messageReader.ReadInt32();
         var sizeDiscoverCells = messageReader.ReadInt32();
         message.DiscoverCellIds = new List<int>();
 

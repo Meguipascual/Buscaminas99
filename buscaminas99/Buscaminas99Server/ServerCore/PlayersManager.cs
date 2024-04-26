@@ -55,9 +55,14 @@ public sealed class PlayersManager : IDisposable {
         _connectionsManager.SendMessageToAllConnectionsExceptOne(connectionId, new NewPlayerConnectedNetworkMessage { PlayerId = connectionId });
     }
 
+    public Player GetPlayer(int playerId)
+    {
+        return _playersByConnectionId[playerId];
+    }
+
     public void SavePlayerPlay(int connectionId, CellIdNetworkMessage message)
     {
-        _playersByConnectionId[connectionId].SavePlay(message);
+        _playersByConnectionId[connectionId].PushPlay(message);
     }
 
     public void Dispose() {

@@ -93,6 +93,12 @@ public class ClientManager : MonoBehaviour
         SendMessage(new EmptyNetworkMessage(){NetworkMessageType = NetworkMessageTypes.ResetServer});
     }
 
+    public void SendUndoPlayMessage()
+    {
+        var targetPLayerId = 1 - _playerId;
+        SendMessage(new UndoPlayNetworkMessage() { TargetPlayerId = targetPLayerId });
+    }
+
     private void SendMessage(NetworkMessage networkMessage) {
         if (clientConnection.State != ConnectionState.Connected)
         {
@@ -129,13 +135,19 @@ public class ClientManager : MonoBehaviour
             case NetworkMessageTypes.ConnectionACK:
                 var connectionACKMessage = ConnectionACKNetworkMessage.FromMessageReader( messageReader);
                 _playerId = connectionACKMessage.PlayerId;
+                Debug.Log($"Player Connected Id Received: {_playerId}");
                 break;
             case NetworkMessageTypes.NewPlayerConnected: 
                 var newPlayerConnectedMessage = NewPlayerConnectedNetworkMessage.FromMessageReader( messageReader);
                 var player = new Player();
                 player.PlayerId = newPlayerConnectedMessage.PlayerId;
                 _playersById.Add(newPlayerConnectedMessage.PlayerId, player);
-				break;
+                Debug.Log($"Player Connected Id Received: {newPlayerConnectedMessage.PlayerId}");
+                break;
+            case NetworkMessageTypes.UndoCommand:
+                var undoCommandMessage = UndoMessageCommandNetworkMessage.FromMessageReader( messageReader);
+                Debug.Log($"Undo Command message received");
+                break;
             case NetworkMessageTypes.GameStarted:
                 var gameStartedMessage = GameStartedNetworkMessage.FromMessageReader(messageReader);
                 OnGameStarted?.Invoke(gameStartedMessage.StartTimestamp);
