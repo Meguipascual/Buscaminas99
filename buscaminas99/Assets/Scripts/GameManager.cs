@@ -1,10 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System;
-
 
 public class GameManager : MonoBehaviour {
     
@@ -14,11 +11,15 @@ public class GameManager : MonoBehaviour {
     private int numberOfBombs;
     private int numberOfCells;
     private int revealedCellsCount;
-    HashSet<int> revealedCellIds = new HashSet<int>();
+    private HashSet<int> revealedCellIds = new HashSet<int>();
+    private int _startTimestamp;
+    
     public bool IsPlayerAlive { get; set; } = true; //Simplifies the get/set structure for a boolean to be accesed by other classes
 
     private void Start() {
         _clientManager = FindObjectOfType<ClientManager>();
+
+        _clientManager.OnGameStarted += SetStartTimestamp;
     }
 
     public void Reset()
@@ -54,5 +55,9 @@ public class GameManager : MonoBehaviour {
             gameOutcomeText.gameObject.SetActive(true);
             IsPlayerAlive = false;
         }
+    }
+
+    private void SetStartTimestamp(int startTimestamp) {
+        _startTimestamp = startTimestamp;
     }
 }

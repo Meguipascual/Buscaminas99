@@ -16,6 +16,9 @@ public class ClientManager : MonoBehaviour
     private int? rivalSeed;
     private int _playerId;
     private Dictionary<int, Player> _playersById;
+    
+    public delegate void GameStartedDelegate(int startTimestamp);
+    public event GameStartedDelegate OnGameStarted;
 
     public bool IsOnline => clientConnection.State == ConnectionState.Connected;
 
@@ -132,6 +135,10 @@ public class ClientManager : MonoBehaviour
                 var player = new Player();
                 player.PlayerId = newPlayerConnectedMessage.PlayerId;
                 _playersById.Add(newPlayerConnectedMessage.PlayerId, player);
+				break;
+            case NetworkMessageTypes.GameStarted:
+                var gameStartedMessage = GameStartedNetworkMessage.FromMessageReader(messageReader);
+                OnGameStarted?.Invoke(gameStartedMessage.StartTimestamp);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
