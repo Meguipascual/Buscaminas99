@@ -4,6 +4,8 @@ using UnityEngine.SceneManagement;
 using TMPro;
 
 public class GameManager : MonoBehaviour {
+
+    [SerializeField] private bool _overrideIsGameStarted;
     
     private ClientManager _clientManager;
     
@@ -13,6 +15,8 @@ public class GameManager : MonoBehaviour {
     private int revealedCellsCount;
     private HashSet<int> revealedCellIds = new HashSet<int>();
     private long _startTimestamp;
+
+    public bool IsGameStarted => _overrideIsGameStarted || _startTimestamp != 0;
     
     public bool IsPlayerAlive { get; set; } = true; //Simplifies the get/set structure for a boolean to be accesed by other classes
 

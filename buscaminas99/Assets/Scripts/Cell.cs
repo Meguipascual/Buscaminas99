@@ -36,7 +36,7 @@ public class Cell : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (_isCellExplored || _boardManager.IsRivalBoard) { return; }
+        if (_isCellExplored || _boardManager.IsRivalBoard || !_gameManager.IsGameStarted) { return; }
 
         if (!_boardManager.AreBombsGenerated)
         {
