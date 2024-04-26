@@ -22,6 +22,16 @@ public class GameManager : MonoBehaviour {
         _clientManager.OnGameStarted += SetStartTimestamp;
     }
 
+    private void OnEnable() {
+        if (_clientManager != null) {
+            _clientManager.OnGameStarted += SetStartTimestamp;
+        }
+    }
+
+    private void OnDisable() {
+        _clientManager.OnGameStarted -= SetStartTimestamp;
+    }
+
     public void Reset()
     {
         if (_clientManager.IsOnline) {
