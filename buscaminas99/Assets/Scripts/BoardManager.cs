@@ -39,7 +39,7 @@ public class BoardManager : MonoBehaviour
         GenerateCells();
         if (FindObjectOfType<NetworkManager>().IsClient && !IsRivalBoard) 
         { 
-            var seedRandom = new Random();
+            var seedRandom = new Random(Guid.NewGuid().GetHashCode());
             Seed=seedRandom.Next();
             
             FindObjectOfType<ClientManager>().SendSeedMessage(Seed);
