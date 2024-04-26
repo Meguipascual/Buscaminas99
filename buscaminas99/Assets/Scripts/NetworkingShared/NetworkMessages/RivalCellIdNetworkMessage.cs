@@ -1,25 +1,19 @@
 using Hazel;
 
-public class RivalCellIdNetworkMessage : NetworkMessage
+public class RivalCellIdNetworkMessage : NetworkMessage<RivalCellIdNetworkMessage>
 {
+    public override NetworkMessageTypes NetworkMessageType => NetworkMessageTypes.RivalCellId;
     public int CellId { get; set; }
     public int ConnectionId { get; set; }
 
-    public override MessageWriter BuildMessageWriter()
-    {
-        var messageWriter = MessageWriter.Get();
-        messageWriter.StartMessage((byte)NetworkMessageTypes.RivalCellId);
+    protected override void BuildMessageWriterImpl(MessageWriter messageWriter) {
         messageWriter.Write(CellId);
         messageWriter.Write(ConnectionId);
-        messageWriter.EndMessage();
-        return messageWriter;
     }
 
-    public static RivalCellIdNetworkMessage FromMessageReader(MessageReader messageReader)
+    protected override void FromMessageReaderImpl(MessageReader messageReader)
     {
-        var message = new RivalCellIdNetworkMessage();
-        message.CellId = messageReader.ReadInt32();
-        message.ConnectionId = messageReader.ReadInt32();
-        return message;
+        CellId = messageReader.ReadInt32();
+        ConnectionId = messageReader.ReadInt32();
     }
 }

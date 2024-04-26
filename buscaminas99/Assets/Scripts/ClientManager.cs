@@ -10,7 +10,8 @@ public class ClientManager : MonoBehaviour
 {
     private UnityUdpClientConnection clientConnection;
     private Queue<int> cellIdsToProcess = new Queue<int>();
-    private Queue<NetworkMessage> unsentMessages = new Queue<NetworkMessage>();
+    private Queue<INetworkMessage> unsentMessages = new Queue<INetworkMessage>();
+    private Queue<INetworkMessage> pendingReceivedMessages = new Queue<INetworkMessage>();
     private BoardManager rivalBoardManager;
     private bool mustRestartScene;
     private int? rivalSeed;
@@ -46,6 +47,8 @@ public class ClientManager : MonoBehaviour
 
         SendPendingMessages();
         ProcessRivalCellIds();
+        
+        HandlePendingReceivedMessages();
 
         if (mustRestartScene)
         {
@@ -90,10 +93,12 @@ public class ClientManager : MonoBehaviour
     }
 
     public void RequestServerReset() {
-        SendMessage(new EmptyNetworkMessage(){NetworkMessageType = NetworkMessageTypes.ResetServer});
+        var message = new EmptyNetworkMessage();
+        message.SetNetworkMessageType(NetworkMessageTypes.ResetServer);
+        SendMessage(message);
     }
 
-    private void SendMessage(NetworkMessage networkMessage) {
+    private void SendMessage(INetworkMessage networkMessage) {
         if (clientConnection.State != ConnectionState.Connected)
         {
             unsentMessages.Enqueue(networkMessage);
@@ -104,7 +109,7 @@ public class ClientManager : MonoBehaviour
         networkMessageWriter.Recycle();
     }
 
-    void HandleMessage(DataReceivedEventArgs args)
+    private void HandleMessage(DataReceivedEventArgs args)
     {
         var messageReader = args.Message.ReadMessage();
         switch ((NetworkMessageTypes)messageReader.Tag)
@@ -138,10 +143,31 @@ public class ClientManager : MonoBehaviour
 				break;
             case NetworkMessageTypes.GameStarted:
                 var gameStartedMessage = GameStartedNetworkMessage.FromMessageReader(messageReader);
+                pendingReceivedMessages.Enqueue(gameStartedMessage);
+                break;
+            default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
+        }
+    }
+
+    /// <summary>
+    /// Used to process messages in the main thread (called from Update),
+    /// mainly for those that will update elements in the UI.
+    /// </summary>
+    private void HandlePendingReceivedMessages() {
+        while (pendingReceivedMessages.Count > 0) {
+            HandlePendingReceivedMessage(pendingReceivedMessages.Dequeue());
+        }
+    }
+
+    private void HandlePendingReceivedMessage(INetworkMessage networkMessage) {
+        switch (networkMessage.NetworkMessageType)
+        {
+            case NetworkMessageTypes.GameStarted:
+                var gameStartedMessage = (GameStartedNetworkMessage)networkMessage;
                 Debug.Log($"Setting start time to {gameStartedMessage.StartTimestamp}");
                 OnGameStarted?.Invoke(gameStartedMessage);
                 break;
-            default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
+            default: throw new ArgumentOutOfRangeException(nameof(networkMessage.NetworkMessageType));
         }
     }
 }

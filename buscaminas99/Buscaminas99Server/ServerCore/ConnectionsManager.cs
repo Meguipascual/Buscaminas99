@@ -42,13 +42,13 @@ public sealed class ConnectionsManager : IDisposable {
         _nextConnectionId++;
     }
 
-    public void SendMessageToConnection(int connectionId, NetworkMessage message) {
+    public void SendMessageToConnection(int connectionId, INetworkMessage message) {
         var messageWriter = message.BuildMessageWriter();
         _connectionsById[connectionId].Send(messageWriter);
         message.BuildMessageWriter().Recycle();
     }
 
-    public void SendMessageToAllConnectionsExceptOne(int connectionIdToExclude, NetworkMessage networkMessage) {
+    public void SendMessageToAllConnectionsExceptOne(int connectionIdToExclude, INetworkMessage networkMessage) {
         var messageWriter = networkMessage.BuildMessageWriter();
         for (var i= 0; i < _nextConnectionId; i++)
         {
@@ -60,7 +60,7 @@ public sealed class ConnectionsManager : IDisposable {
         messageWriter.Recycle();
     }
     
-    public void BroadcastMessage(NetworkMessage networkMessage) {
+    public void BroadcastMessage(INetworkMessage networkMessage) {
         var messageWriter = networkMessage.BuildMessageWriter();
         foreach (var (_, connection) in _connectionsById) {
             connection.Send(messageWriter);
@@ -69,7 +69,8 @@ public sealed class ConnectionsManager : IDisposable {
     }
     
     public void BroadcastEmptyMessage(NetworkMessageTypes messageType) {
-        NetworkMessage networkMessage = new EmptyNetworkMessage { NetworkMessageType = messageType};
+        var networkMessage = new EmptyNetworkMessage();
+        networkMessage.SetNetworkMessageType(messageType);
         var messageWriter = networkMessage.BuildMessageWriter();
         foreach (var (_, connection) in _connectionsById) {
             connection.Send(messageWriter);

@@ -1,27 +1,17 @@
 using Hazel;
-using System.Collections;
-using System.Collections.Generic;
 
-public class ConnectionACKNetworkMessage : NetworkMessage
+public class ConnectionACKNetworkMessage : NetworkMessage<ConnectionACKNetworkMessage>
 {
+    public override NetworkMessageTypes NetworkMessageType => NetworkMessageTypes.ConnectionACK;
     public int PlayerId {  get; set; }
 
-    public override MessageWriter BuildMessageWriter()
+    protected override void BuildMessageWriterImpl(MessageWriter messageWriter)
     {
-        var messageWriter = MessageWriter.Get();
-        messageWriter.StartMessage((byte)NetworkMessageTypes.ConnectionACK);
         messageWriter.Write(PlayerId);
-
-        messageWriter.EndMessage();
-        return messageWriter;
     }
 
-    public static ConnectionACKNetworkMessage FromMessageReader(MessageReader messageReader)
+    protected override void FromMessageReaderImpl(MessageReader messageReader)
     {
-
-        var message = new ConnectionACKNetworkMessage();
-        message.PlayerId = messageReader.ReadInt32();
-        
-        return message;
+        PlayerId = messageReader.ReadInt32();
     }
 }

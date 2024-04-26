@@ -20,7 +20,7 @@ public class MessageHandler : IDisposable {
     }
 
     private async Task ProcessMessage(int connectionId, MessageReader messageReader) {
-        NetworkMessage? networkMessage = null;
+        INetworkMessage? networkMessage = null;
         switch ((NetworkMessageTypes)messageReader.Tag)
         {
             case NetworkMessageTypes.Seed:

@@ -1,28 +1,14 @@
 using Hazel;
-using System.Collections;
-using System.Collections.Generic;
 
-public class NewPlayerConnectedNetworkMessage : NetworkMessage
-{
+public class NewPlayerConnectedNetworkMessage : NetworkMessage<NewPlayerConnectedNetworkMessage> {
+    public override NetworkMessageTypes NetworkMessageType => NetworkMessageTypes.NewPlayerConnected;
     public int PlayerId { get; set; }
 
-
-    public override MessageWriter BuildMessageWriter()
-    {
-        var messageWriter = MessageWriter.Get();
-        messageWriter.StartMessage((byte)NetworkMessageTypes.NewPlayerConnected);
+    protected override void BuildMessageWriterImpl(MessageWriter messageWriter) {
         messageWriter.Write(PlayerId);
-
-        messageWriter.EndMessage();
-        return messageWriter;
     }
 
-    public static NewPlayerConnectedNetworkMessage FromMessageReader(MessageReader messageReader)
-    {
-
-        var message = new NewPlayerConnectedNetworkMessage();
-        message.PlayerId = messageReader.ReadInt32();
-
-        return message;
+    protected override void FromMessageReaderImpl(MessageReader messageReader) {
+        PlayerId = messageReader.ReadInt32();
     }
 }

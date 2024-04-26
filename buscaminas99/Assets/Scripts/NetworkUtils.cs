@@ -17,12 +17,12 @@ public static class NetworkUtils
             return ms.ToArray();
         }
     }
-    public static NetworkMessage ByteArrayToNetworkMessage(byte[] byteArray)
+    public static INetworkMessage ByteArrayToNetworkMessage(byte[] byteArray)
     {
         BinaryFormatter bf = new BinaryFormatter();
         using (MemoryStream ms = new MemoryStream(byteArray))
         {
-            return (NetworkMessage)bf.Deserialize(ms);
+            return (INetworkMessage)bf.Deserialize(ms);
         }
     }
 }

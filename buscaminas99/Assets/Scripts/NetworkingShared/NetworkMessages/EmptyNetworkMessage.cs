@@ -1,14 +1,16 @@
 using Hazel;
 
-public class EmptyNetworkMessage : NetworkMessage
-{
-    public NetworkMessageTypes NetworkMessageType { get; set; }
+public class EmptyNetworkMessage : NetworkMessage<EmptyNetworkMessage> {
+    
+    private NetworkMessageTypes _networkMessageType;
+    public override NetworkMessageTypes NetworkMessageType => _networkMessageType;
 
-    public override MessageWriter BuildMessageWriter()
+    public void SetNetworkMessageType(NetworkMessageTypes networkMessageType) {
+        _networkMessageType = networkMessageType;
+    }
+
+    protected override void BuildMessageWriterImpl(MessageWriter messageWriter)
     {
-        var messageWriter = MessageWriter.Get();
         messageWriter.StartMessage((byte)NetworkMessageType);
-        messageWriter.EndMessage();
-        return messageWriter;
     }
 }

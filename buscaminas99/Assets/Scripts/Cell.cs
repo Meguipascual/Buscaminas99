@@ -61,8 +61,7 @@ public class Cell : MonoBehaviour
             if (!_boardManager.IsRivalBoard)
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
-                _gameManager.IsPlayerAlive = false;
-                _gameManager.gameOutcomeText.gameObject.SetActive(true);
+                _gameManager.KillPlayer();
             }
         }
         else

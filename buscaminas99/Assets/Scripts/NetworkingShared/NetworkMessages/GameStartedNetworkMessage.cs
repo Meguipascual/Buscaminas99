@@ -1,22 +1,17 @@
 using Hazel;
 
-public class GameStartedNetworkMessage : NetworkMessage {
+public class GameStartedNetworkMessage : NetworkMessage<GameStartedNetworkMessage> {
+    public override NetworkMessageTypes NetworkMessageType => NetworkMessageTypes.GameStarted;
     public long StartTimestamp { get; set; }
-    public int GameDurationSeconds { get; set; } 
-    
-    public override MessageWriter BuildMessageWriter() {
-        var messageWriter = MessageWriter.Get();
-        messageWriter.StartMessage((byte)NetworkMessageTypes.GameStarted);
+    public int GameDurationSeconds { get; set; }
+
+    protected override void BuildMessageWriterImpl(MessageWriter messageWriter) {
         messageWriter.Write(StartTimestamp);
         messageWriter.Write(GameDurationSeconds);
-        messageWriter.EndMessage();
-        return messageWriter;
     }
 
-    public static GameStartedNetworkMessage FromMessageReader(MessageReader messageReader) {
-        var message = new GameStartedNetworkMessage();
-        message.StartTimestamp = messageReader.ReadInt64();
-        message.GameDurationSeconds = messageReader.ReadInt32();
-        return message;
+    protected override void FromMessageReaderImpl(MessageReader messageReader) {
+        StartTimestamp = messageReader.ReadInt64();
+        GameDurationSeconds = messageReader.ReadInt32();
     }
 }
