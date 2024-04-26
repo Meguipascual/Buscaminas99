@@ -6,6 +6,7 @@ await using var services = new ServiceCollection()
     .AddSingleton<MessageHandler>()
     .AddSingleton<PlayersManager>()
     .AddSingleton<ServerController>()
+    .AddSingleton<ServerState>()
     .BuildServiceProvider();
 
 var connectionsManager = services.GetService<ConnectionsManager>();

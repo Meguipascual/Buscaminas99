@@ -5,15 +5,18 @@ namespace ServerCore;
 public class MessageHandler : IDisposable {
 
     private readonly ConnectionsManager _connectionsManager;
+    private readonly ServerState _serverState;
 
     public delegate Task SeedNetworkMessageReceivedDelegate(int connectionId, SeedNetworkMessage seedNetworkMessage);
     public event SeedNetworkMessageReceivedDelegate OnSeedNetworkMessageReceived = null!;
     public delegate Task ResetServerRequestReceivedDelegate();
     public event ResetServerRequestReceivedDelegate OnResetServerRequestReceived = null!;
 
-    public MessageHandler(ConnectionsManager connectionsManager) {
+    public MessageHandler(ConnectionsManager connectionsManager, ServerState serverState) {
         _connectionsManager = connectionsManager;
         _connectionsManager.OnMessageReceived += ProcessMessage;
+
+        _serverState = serverState;
     }
 
     private async Task ProcessMessage(int connectionId, MessageReader messageReader) {
@@ -27,10 +30,11 @@ public class MessageHandler : IDisposable {
                 Console.WriteLine($"Seed received for player {connectionId}: {seedMessage.Seed}");
                 break;
             case NetworkMessageTypes.CellId:
-                var cellIdMessage = CellIdNetworkMessage.FromMessageReader(messageReader);
-                networkMessage = new RivalCellIdNetworkMessage { ConnectionId = connectionId, CellId = cellIdMessage.CellId };
-
-                Console.WriteLine($"Rival Cell Id received: {cellIdMessage.CellId}");
+                if (_serverState.IsGameActive) {
+                    var cellIdMessage = CellIdNetworkMessage.FromMessageReader(messageReader);
+                    networkMessage = new RivalCellIdNetworkMessage { ConnectionId = connectionId, CellId = cellIdMessage.CellId };
+                    Console.WriteLine($"Rival Cell Id received: {cellIdMessage.CellId}");
+                }
                 break;
             case NetworkMessageTypes.ResetServer:
                 Console.WriteLine($"Reset server request received");

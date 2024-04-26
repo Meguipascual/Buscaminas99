@@ -6,7 +6,7 @@ using TMPro;
 
 public class GameManager : MonoBehaviour {
 
-    [SerializeField] private bool _overrideIsGameStarted;
+    [SerializeField] private bool _overrideIsGameActive;
     
     private ClientManager _clientManager;
     
@@ -18,8 +18,9 @@ public class GameManager : MonoBehaviour {
     private long _startTimestamp;
     private int _gameDurationSeconds;
 
-    public bool IsGameStarted => _overrideIsGameStarted || (_startTimestamp > 0 && !IsGameFinished);
-    public bool IsGameFinished => _startTimestamp > 0 && DateTime.UtcNow.ToUnixTimeSeconds() >= (_startTimestamp + _gameDurationSeconds);
+    public bool IsGameActive => _overrideIsGameActive || (IsGameStarted && !IsGameFinished);
+    private bool IsGameStarted => _startTimestamp > 0;
+    private bool IsGameFinished => DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= (_startTimestamp + _gameDurationSeconds);
     
     public bool IsPlayerAlive { get; set; } = true; //Simplifies the get/set structure for a boolean to be accesed by other classes
 
