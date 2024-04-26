@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,25 +16,27 @@ public class GameManager : MonoBehaviour {
     private int revealedCellsCount;
     private HashSet<int> revealedCellIds = new HashSet<int>();
     private long _startTimestamp;
+    private int _gameDurationSeconds;
 
-    public bool IsGameStarted => _overrideIsGameStarted || _startTimestamp != 0;
+    public bool IsGameStarted => _overrideIsGameStarted || (_startTimestamp > 0 && !IsGameFinished);
+    public bool IsGameFinished => _startTimestamp > 0 && DateTime.UtcNow.ToUnixTimeSeconds() >= (_startTimestamp + _gameDurationSeconds);
     
     public bool IsPlayerAlive { get; set; } = true; //Simplifies the get/set structure for a boolean to be accesed by other classes
 
     private void Start() {
         _clientManager = FindObjectOfType<ClientManager>();
 
-        _clientManager.OnGameStarted += SetStartTimestamp;
+        _clientManager.OnGameStarted += HandleGameStarted;
     }
 
     private void OnEnable() {
         if (_clientManager != null) {
-            _clientManager.OnGameStarted += SetStartTimestamp;
+            _clientManager.OnGameStarted += HandleGameStarted;
         }
     }
 
     private void OnDisable() {
-        _clientManager.OnGameStarted -= SetStartTimestamp;
+        _clientManager.OnGameStarted -= HandleGameStarted;
     }
 
     public void Reset()
@@ -71,7 +74,8 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private void SetStartTimestamp(long startTimestamp) {
-        _startTimestamp = startTimestamp;
+    private void HandleGameStarted(GameStartedNetworkMessage gameStartedNetworkMessage) {
+        _startTimestamp = gameStartedNetworkMessage.StartTimestamp;
+        _gameDurationSeconds = gameStartedNetworkMessage.GameDurationSeconds;
     }
 }

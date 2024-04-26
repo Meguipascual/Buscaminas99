@@ -17,7 +17,7 @@ public class ClientManager : MonoBehaviour
     private int _playerId;
     private Dictionary<int, Player> _playersById = new Dictionary<int, Player>();
     
-    public delegate void GameStartedDelegate(long startTimestamp);
+    public delegate void GameStartedDelegate(GameStartedNetworkMessage gameStartedNetworkMessage);
     public event GameStartedDelegate OnGameStarted;
 
     public bool IsOnline => clientConnection.State == ConnectionState.Connected;
@@ -139,7 +139,7 @@ public class ClientManager : MonoBehaviour
             case NetworkMessageTypes.GameStarted:
                 var gameStartedMessage = GameStartedNetworkMessage.FromMessageReader(messageReader);
                 Debug.Log($"Setting start time to {gameStartedMessage.StartTimestamp}");
-                OnGameStarted?.Invoke(gameStartedMessage.StartTimestamp);
+                OnGameStarted?.Invoke(gameStartedMessage);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }

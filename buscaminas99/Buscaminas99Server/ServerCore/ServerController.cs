@@ -3,6 +3,7 @@ namespace ServerCore;
 public class ServerController : IDisposable {
 
     private const int MinPlayersToStartGame = 2;
+    private const int GameDurationSeconds = 300;
 
     private readonly ConnectionsManager _connectionsManager;
     private readonly PlayersManager _playersManager;
@@ -25,9 +26,10 @@ public class ServerController : IDisposable {
     }
 
     private Task StartGame() {
-        _startTimestamp = (DateTimeOffset.UtcNow).ToUnixTimeSeconds();
-        var gameStartedMessage = new GameStartedNetworkMessage() {
-            StartTimestamp = _startTimestamp
+        _startTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var gameStartedMessage = new GameStartedNetworkMessage {
+            StartTimestamp = _startTimestamp,
+            GameDurationSeconds = GameDurationSeconds,
         };
         _connectionsManager.BroadcastMessage(gameStartedMessage);
         return Task.CompletedTask;
@@ -37,7 +39,8 @@ public class ServerController : IDisposable {
         if (_isResetting) {
             return;
         }
-        
+
+        _isResetting = true;
         _connectionsManager.BroadcastEmptyMessage(NetworkMessageTypes.ResetGameWarning);
         await Task.Delay(5000);
         ResetServer();
