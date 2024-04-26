@@ -54,6 +54,7 @@ public class ServerController : IDisposable {
         _connectionsManager.BroadcastEmptyMessage(NetworkMessageTypes.ResetGame);
         _connectionsManager.Reset();
         _playersManager.Reset();
+        _isResetting = false;
     }
 
     public void Dispose() {
