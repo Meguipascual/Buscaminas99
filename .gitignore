@@ -148,3 +148,7 @@ buscaminas99_clone_*/
 # Server temporary folders
 */Buscaminas99Server/*/bin/*
 */Buscaminas99Server/*/obj/*
+
+
+#Logs
+*/Logs/*
