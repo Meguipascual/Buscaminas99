@@ -1,6 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -12,10 +12,10 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private GameTimer _gameTimer;
     
     private ClientManager _clientManager;
+    private BoardManager _localBoardManager;
     
     private int numberOfBombs;
     private int numberOfCells;
-    private int revealedCellsCount;
     private HashSet<int> revealedCellIds = new HashSet<int>();
     private long _startTimestamp;
     private int _gameDurationSeconds;
@@ -28,8 +28,10 @@ public class GameManager : MonoBehaviour {
 
     private void Start() {
         _clientManager = FindObjectOfType<ClientManager>();
-
         _clientManager.OnGameStarted += HandleGameStarted;
+
+        var boardManagers = FindObjectsOfType<BoardManager>();
+        _localBoardManager = boardManagers.Single(boardManager => !boardManager.IsRivalBoard);
     }
 
     private void OnEnable() {
@@ -81,8 +83,7 @@ public class GameManager : MonoBehaviour {
         }
 
         revealedCellIds.Add(cellId);
-        revealedCellsCount++;
-        if (revealedCellsCount == (numberOfCells - numberOfBombs))
+        if (revealedCellIds.Count == (numberOfCells - numberOfBombs))
         {
             _gameOutcomeText.text = $"You Win";
             _gameOutcomeText.gameObject.SetActive(true);
@@ -94,6 +95,13 @@ public class GameManager : MonoBehaviour {
         Debug.Log("GameOver, te has murido muy fuerte");
         IsPlayerAlive = false;
         _gameOutcomeText.gameObject.SetActive(true);
+    }
+
+    public void StartNewBoard() {
+        IsPlayerAlive = true;
+        revealedCellIds.Clear();
+        _gameOutcomeText.gameObject.SetActive(false);
+        _localBoardManager.Reset();
     }
 
     private void HandleGameStarted(GameStartedNetworkMessage gameStartedNetworkMessage) {

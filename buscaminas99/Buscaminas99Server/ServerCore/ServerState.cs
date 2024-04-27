@@ -2,7 +2,7 @@ namespace ServerCore;
 
 public class ServerState {
     
-    public const int GameDurationSeconds = 20;
+    public const int GameDurationSeconds = 180;
     
     public long StartTimestamp { get; private set; }
     public bool IsGameActive => IsGameStarted && !IsGameFinished;

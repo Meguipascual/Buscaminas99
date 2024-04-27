@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Cell : MonoBehaviour
 {
-    [SerializeField] private GameObject _flag;
+    [SerializeField] private GameObject _flagPrefab;
     [SerializeField] private TextMesh _number;
     [SerializeField] private MeshRenderer _renderer;
     
@@ -11,9 +11,11 @@ public class Cell : MonoBehaviour
     private BoardManager _boardManager;
     private ClientManager _clientManager;
 
+    private GameObject _flag;
+
     private int _id;
     private bool _isCellExplored;
-    
+
     private Vector3[] eightVariations = new Vector3[8];
     private Vector3[] fourVariations = new Vector3[4];
 
@@ -36,6 +38,7 @@ public class Cell : MonoBehaviour
 
     private void OnMouseDown()
     {
+        Debug.Log($"Mouse down on cell {_id}");
         if (_isCellExplored || _boardManager.IsRivalBoard || !_gameManager.IsGameActive) { return; }
 
         if (!_boardManager.AreBombsGenerated)
@@ -57,7 +60,7 @@ public class Cell : MonoBehaviour
 
         if (_boardManager.BombExists(gameObject.transform.position))
         {
-            DestroyCell();
+            HideCell();
             if (!_boardManager.IsRivalBoard)
             {
                 Debug.Log("GameOver, te has murido muy fuerte");
@@ -83,7 +86,7 @@ public class Cell : MonoBehaviour
         {
             if (_gameManager.IsPlayerAlive)
             {
-                Instantiate(_flag, gameObject.transform.position, transform.rotation);
+                _flag = Instantiate(_flagPrefab, gameObject.transform.position, transform.rotation);
                 //controlar que solo se pueda crear una flag haciendo que si le vuelve a dar la elimine en vez de crear otra
             }
         }
@@ -115,14 +118,17 @@ public class Cell : MonoBehaviour
             return discoverCellIds;
         }
         
-        _isCellExplored = true;
+        Debug.Log($"Exploring cell {_id}");
 
         var position = gameObject.transform.position;
         var num = 0;
         if (_boardManager.BombExists(position))
         {
+            Debug.Log($"Bomb exists in cell {_id}");
             return discoverCellIds;
         }
+        
+        _isCellExplored = true;
 
         foreach (var neighbourPosition in CalculateEightNeighbourCellPositions())
         {
@@ -133,19 +139,22 @@ public class Cell : MonoBehaviour
 
         if (num == 0)
         {
+            Debug.Log($"No bombs surrounding cell {_id}, will explore neighbours");
             discoverCellIds = _boardManager.RevealNeighbourCells(this);
         }
         else
         {
+            Debug.Log($"Bombs found in cell {_id}, writing number");
             _number.text = num.ToString();
             _number.gameObject.SetActive(true);
         }
-        DestroyCell();
+        Debug.Log($"Hiding cell {_id}");
+        HideCell();
         discoverCellIds.Add(Id);
         return discoverCellIds;
     }
 
-    private void DestroyCell()
+    private void HideCell()
     {
         _renderer.enabled = false;
 
@@ -169,5 +178,14 @@ public class Cell : MonoBehaviour
                 yield return position + eightVariations[i];
             }
         }
+    }
+
+    public void Destroy() {
+        Destroy(_number.gameObject);
+        Destroy(_renderer.gameObject);
+        if (_flag != null) {
+            Destroy(_flag.gameObject);
+        }
+        Destroy(gameObject);
     }
 }

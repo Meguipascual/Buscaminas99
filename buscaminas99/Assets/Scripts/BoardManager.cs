@@ -22,6 +22,7 @@ public class BoardManager : MonoBehaviour
     List<int> cellIdsWithBombs = new List<int>();//Ids' list that have a bomb 
     List<int> allCellIds = new List<int>();//List of all ids 
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();//Dictionary that relates an ID with its Cell
+    private List<GameObject> _bombs = new List<GameObject>();
     public Vector2 BoardCenterPosition { get; private set; }
     public bool IsRivalBoard => gameObject.CompareTag(Tags.RivalBoard);
     public float Scale { get; private set; }
@@ -36,6 +37,16 @@ public class BoardManager : MonoBehaviour
         gameManager = FindObjectOfType<GameManager>();
         BoardCenterPosition = boardCenter.position;
         Scale = transform.localScale.x;
+        
+        Initialize();
+
+        if (!IsRivalBoard)
+        {
+            gameManager.SetBoardFeatures(numberOfBombs, numberOfColumns * numberOfRows);
+        }
+    }
+
+    public void Initialize() {
         GenerateCells();
         if (FindObjectOfType<NetworkManager>().IsClient && !IsRivalBoard) 
         { 
@@ -44,11 +55,27 @@ public class BoardManager : MonoBehaviour
             
             FindObjectOfType<ClientManager>().SendSeedMessage(Seed);
         }
+    }
 
-        if (!IsRivalBoard)
-        {
-            gameManager.SetBoardFeatures(numberOfBombs, numberOfColumns * numberOfRows);
+    public void Reset() {
+        Clear();
+        Initialize();
+    }
+
+    private void Clear() {
+        foreach (var kvp in cellById) {
+            kvp.Value.Destroy();
         }
+        cellById.Clear();
+        
+        foreach (var bomb in _bombs) {
+            Destroy(bomb.gameObject);
+        }
+        _bombs.Clear();
+        
+        cellIdsWithBombs.Clear();
+        allCellIds.Clear();
+        AreBombsGenerated = false;
     }
 
     public void RegisterCell(Cell cell)
@@ -130,6 +157,7 @@ public class BoardManager : MonoBehaviour
                 bomb.transform.localScale.y,
                 transform.localScale.y * bomb.transform.localScale.z);
             nextBombIndex++;
+            _bombs.Add(bomb);
         }
 
         AreBombsGenerated = true;
