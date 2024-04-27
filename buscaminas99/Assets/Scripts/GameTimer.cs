@@ -1,35 +1,49 @@
-using System.Collections;
+using System;
 using TMPro;
 using UnityEngine;
 
 public class GameTimer : MonoBehaviour {
     
     [SerializeField] private TMP_Text _timerText;
-    
+
+    private long _startTimestamp;
+    private long _endTimestamp;
     private int _countdownSeconds;
     
     protected void Start() {
         _timerText.gameObject.SetActive(false);
     }
     
-    public void StartTimer(int gameDurationSeconds) {
+    protected void Update() {
+        if (_countdownSeconds > 0) {
+            UpdateCountdown();
+        }
+    }
+    
+    public void StartTimer(long startTimestamp, int gameDurationSeconds) {
+        _startTimestamp = startTimestamp;
+        _endTimestamp = _startTimestamp + gameDurationSeconds;
         _countdownSeconds = gameDurationSeconds;
         _timerText.gameObject.SetActive(true);
-        _timerText.text = _countdownSeconds.ToString();
-        StartCoroutine(UpdateTimerOneSecond());
+        UpdateText();
     }
 
-    private IEnumerator UpdateTimerOneSecond() {
-        yield return new WaitForSeconds(1);
-        _countdownSeconds--;
+    private void UpdateCountdown() {
+        var countdownSeconds = _endTimestamp - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        if (countdownSeconds < _countdownSeconds) {
+            _countdownSeconds = (int)countdownSeconds;
+            UpdateText();
+        }
+    }
+
+    private void UpdateText() {
         if (_countdownSeconds <= 0) {
             _timerText.text = "Game finished";
+            return;
         }
-        else {
-            var minutes = _countdownSeconds / 60;
-            var seconds = _countdownSeconds % 60;
-            _timerText.text = minutes.ToString("00") + ":" + seconds.ToString("00");
-            StartCoroutine(UpdateTimerOneSecond());
-        }
+        
+        var minutes = _countdownSeconds / 60;
+        var seconds = _countdownSeconds % 60;
+        _timerText.text = minutes.ToString("00") + ":" + seconds.ToString("00");
     }
 }

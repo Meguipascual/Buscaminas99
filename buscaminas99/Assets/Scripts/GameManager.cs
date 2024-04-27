@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -85,6 +86,8 @@ public class GameManager : MonoBehaviour {
     private void HandleGameStarted(GameStartedNetworkMessage gameStartedNetworkMessage) {
         _startTimestamp = gameStartedNetworkMessage.StartTimestamp;
         _gameDurationSeconds = gameStartedNetworkMessage.GameDurationSeconds;
-        _gameTimer.StartTimer(gameStartedNetworkMessage.GameDurationSeconds);
+        _gameTimer.StartTimer(
+            gameStartedNetworkMessage.StartTimestamp, 
+            gameStartedNetworkMessage.GameDurationSeconds);
     }
 }
