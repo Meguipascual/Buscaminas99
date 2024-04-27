@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,11 +6,9 @@ using TMPro;
 
 public class GameManager : MonoBehaviour {
 
-    private const int MaxCountdownSeconds = 5;
-
     [SerializeField] private bool _overrideIsGameActive;
     [SerializeField] private TextMeshProUGUI _gameOutcomeText;
-    [SerializeField] private TMP_Text _endOfGameCountdownText;
+    [SerializeField] private GameTimer _gameTimer;
     
     private ClientManager _clientManager;
     
@@ -21,7 +18,6 @@ public class GameManager : MonoBehaviour {
     private HashSet<int> revealedCellIds = new HashSet<int>();
     private long _startTimestamp;
     private int _gameDurationSeconds;
-    private int _countdownSeconds;
 
     public bool IsGameActive => _overrideIsGameActive || (IsGameStarted && !IsGameFinished);
     private bool IsGameStarted => _startTimestamp > 0;
@@ -89,27 +85,6 @@ public class GameManager : MonoBehaviour {
     private void HandleGameStarted(GameStartedNetworkMessage gameStartedNetworkMessage) {
         _startTimestamp = gameStartedNetworkMessage.StartTimestamp;
         _gameDurationSeconds = gameStartedNetworkMessage.GameDurationSeconds;
-        _endOfGameCountdownText.gameObject.SetActive(false);
-        StartCoroutine(EnableEndOfGameCountdownAfterTime());
-    }
-    
-    private IEnumerator EnableEndOfGameCountdownAfterTime() {
-        _countdownSeconds = MaxCountdownSeconds;
-        yield return new WaitForSeconds(_gameDurationSeconds - MaxCountdownSeconds);
-        _endOfGameCountdownText.gameObject.SetActive(true);
-        _endOfGameCountdownText.text = _countdownSeconds.ToString();
-        StartCoroutine(UpdateEndOfGameCountdownOneSecond());
-    }
-
-    private IEnumerator UpdateEndOfGameCountdownOneSecond() {
-        yield return new WaitForSeconds(1);
-        _countdownSeconds--;
-        if (_countdownSeconds <= 0) {
-            _endOfGameCountdownText.text = "Game finished";
-        }
-        else {
-            _endOfGameCountdownText.text = _countdownSeconds.ToString();
-            StartCoroutine(UpdateEndOfGameCountdownOneSecond());
-        }
+        _gameTimer.StartTimer(gameStartedNetworkMessage.GameDurationSeconds);
     }
 }

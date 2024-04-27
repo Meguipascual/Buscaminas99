@@ -1292,6 +1292,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2028701471}
   - component: {fileID: 2028701470}
+  - component: {fileID: 2028701472}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -1313,7 +1314,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _overrideIsGameActive: 0
   _gameOutcomeText: {fileID: 1588036710}
-  _endOfGameCountdownText: {fileID: 2064617975}
+  _gameTimer: {fileID: 2028701472}
 --- !u!4 &2028701471
 Transform:
   m_ObjectHideFlags: 0
@@ -1328,6 +1329,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2028701472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028701469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5acc903390040ab84d10bdbb9695f9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _timerText: {fileID: 2064617975}
 --- !u!1 &2064617973
 GameObject:
   m_ObjectHideFlags: 0
@@ -1340,12 +1354,12 @@ GameObject:
   - component: {fileID: 2064617976}
   - component: {fileID: 2064617975}
   m_Layer: 5
-  m_Name: EndOfGameCountdownText
+  m_Name: TimerText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2064617974
 RectTransform:
   m_ObjectHideFlags: 0
