@@ -11,6 +11,11 @@ public class MessageHandler : IDisposable {
     public event SeedNetworkMessageReceivedDelegate OnSeedNetworkMessageReceived = null!;
     public delegate Task ResetServerRequestReceivedDelegate();
     public event ResetServerRequestReceivedDelegate OnResetServerRequestReceived = null!;
+    public delegate void UndoPlayNetworkMessageReceivedDelegate(int targetPlayerId, UndoPlayNetworkMessage undoPlayNetworkMessage);
+    public event UndoPlayNetworkMessageReceivedDelegate OnUndoPlayNetworkMessageReceived = null!;
+
+
+
 
     public MessageHandler(ConnectionsManager connectionsManager, ServerState serverState) {
         _connectionsManager = connectionsManager;
@@ -39,6 +44,12 @@ public class MessageHandler : IDisposable {
             case NetworkMessageTypes.ResetServer:
                 Console.WriteLine($"Reset server request received");
                 OnResetServerRequestReceived?.Invoke();
+                break;
+            case NetworkMessageTypes.UndoPlay:
+                var undoPlayMessage = UndoPlayNetworkMessage.FromMessageReader(messageReader);
+                OnUndoPlayNetworkMessageReceived.Invoke(connectionId, undoPlayMessage);
+                Console.WriteLine($"Undo server request received");
+
                 break;
             default: 
                 Console.WriteLine($"Invalid message tag received: {messageReader.Tag}");

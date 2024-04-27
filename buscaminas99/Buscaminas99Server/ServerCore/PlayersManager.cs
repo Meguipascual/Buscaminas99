@@ -22,6 +22,9 @@ public sealed class PlayersManager : IDisposable {
 
         _messageHandler = messageHandler;
         _messageHandler.OnSeedNetworkMessageReceived += SetPlayerSeed;
+        _messageHandler.OnUndoPlayNetworkMessageReceived += DoThings;
+
+
     }
 
     public void Reset() {
@@ -61,13 +64,27 @@ public sealed class PlayersManager : IDisposable {
         await OnPlayerAdded.Invoke(connectionId);
     }
 
+    public Player GetPlayer(int playerId)
+    {
+        return _playersByConnectionId[playerId];
+    }
+
     public void SavePlayerPlay(int connectionId, CellIdNetworkMessage message)
     {
-        _playersByConnectionId[connectionId].SavePlay(message);
+        _playersByConnectionId[connectionId].PushPlay(message);
+    }
+
+    public void DoThings(int connectionId, UndoPlayNetworkMessage undoPlayNetworkMessage)
+    {
+        var player = GetPlayer(undoPlayNetworkMessage.TargetPlayerId);
+        var play = player.PopPlay();
+        var message = new UndoMessageCommandNetworkMessage { TargetPlayerId = player.PlayerId, DiscoverCellIds = play.DiscoverCellIds.ToList() };
+        _connectionsManager.BroadcastMessage(message);
     }
 
     public void Dispose() {
         _connectionsManager.OnConnectionCreated -= HandleNewPlayerConnection;
         _messageHandler.OnSeedNetworkMessageReceived -= SetPlayerSeed;
+        _messageHandler.OnUndoPlayNetworkMessageReceived -= DoThings;
     }
 }

@@ -6,17 +6,22 @@ using System.Threading.Tasks;
 
 namespace ServerCore;
 
-internal class Player
+public class Player
 {
     public int PlayerId {  get; set; }
     public int Score { get; set; }
 
     Stack<Play> Plays;
-    public void SavePlay(CellIdNetworkMessage cellIdNetworkMessage) 
+    public void PushPlay(CellIdNetworkMessage cellIdNetworkMessage) 
     {
         var play = new Play() { CellId = cellIdNetworkMessage.CellId, DiscoverCellIds = cellIdNetworkMessage.DiscoverCellIds.ToList() };
 
         Plays.Push(play);
+    }
+
+    public Play PopPlay() 
+    { 
+       return Plays.Pop();
     }
 
 }
