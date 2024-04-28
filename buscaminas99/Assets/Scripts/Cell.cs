@@ -20,6 +20,7 @@ public class Cell : MonoBehaviour
     private Vector3[] fourVariations = new Vector3[4];
 
     public int Id => _id;
+    public bool IsExplored => _isCellExplored;
 
     // Start is called before the first frame update
     void Start()

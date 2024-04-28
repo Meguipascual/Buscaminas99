@@ -118,4 +118,8 @@ public class GameManager : MonoBehaviour {
             gameStartedNetworkMessage.StartTimestamp, 
             gameStartedNetworkMessage.GameDurationSeconds);
     }
+
+    public void DebugFinishBoard() {
+        _localBoardManager.DebugFinishBoard();
+    }
 }

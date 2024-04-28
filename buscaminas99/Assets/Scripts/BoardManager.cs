@@ -262,4 +262,23 @@ public class BoardManager : MonoBehaviour
 
         return generatedId;
     }
+
+    public void DebugFinishBoard() {
+        if (!gameManager.IsPlayerAlive
+            || !gameManager.IsGameActive) {
+            return;
+        }
+
+        if (!AreBombsGenerated) {
+            GenerateBombs();
+        }
+        
+        foreach (var cellId in allCellIds) {
+            if (gameManager.IsPlayerAlive 
+                && !cellIdsWithBombs.Contains(cellId) 
+                && !cellById[cellId].IsExplored) {
+                cellById[cellId].UseCell();
+            }
+        }
+    }
 }
