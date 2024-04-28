@@ -35,8 +35,6 @@ public class MessageHandler : IDisposable {
             case NetworkMessageTypes.Seed:
                 var seedMessage = SeedNetworkMessage.FromMessageReader(messageReader);
                 await OnSeedNetworkMessageReceived.Invoke(connectionId, seedMessage);
-                networkMessage = new RivalSeedNetworkMessage { ConnectionId = connectionId, Seed = seedMessage.Seed };
-                Console.WriteLine($"Seed received for player {connectionId}: {seedMessage.Seed}");
                 break;
             case NetworkMessageTypes.CellId:
                 if (_serverState.IsGameActive) {

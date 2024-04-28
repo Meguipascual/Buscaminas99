@@ -10,7 +10,6 @@ public sealed class PlayersManager : IDisposable {
     private readonly MessageHandler _messageHandler;
     
     private readonly Dictionary<int, Player> _playersByConnectionId = new();
-    private readonly Dictionary<int, int> _seedsByConnectionId = new();
 
     public delegate Task PlayerAddedDelegate(int playerId);
     public event PlayerAddedDelegate OnPlayerAdded; 
@@ -29,7 +28,6 @@ public sealed class PlayersManager : IDisposable {
     }
 
     public void Reset() {
-        _seedsByConnectionId.Clear();
         _playersByConnectionId.Clear();
     }
 
@@ -41,9 +39,9 @@ public sealed class PlayersManager : IDisposable {
     }
 
     private Task BroadcastExistingPlayerSeeds(int connectionId) {
-        foreach(var keyValuePair in _seedsByConnectionId)
+        foreach(var keyValuePair in _playersByConnectionId)
         {
-            var message = new RivalSeedNetworkMessage { ConnectionId = keyValuePair.Key, Seed = keyValuePair.Value };
+            var message = new RivalSeedNetworkMessage { ConnectionId = keyValuePair.Key, Seed = keyValuePair.Value.Seed!.Value };
             _connectionsManager.SendMessageToConnection(connectionId, message);
         }
 
@@ -51,7 +49,15 @@ public sealed class PlayersManager : IDisposable {
     }
 
     private Task SetPlayerSeed(int connectionId, SeedNetworkMessage seedNetworkMessage) {
-        _seedsByConnectionId[connectionId] = seedNetworkMessage.Seed;
+        Console.WriteLine($"Seed received for player {connectionId}: {seedNetworkMessage.Seed}");
+        var player = _playersByConnectionId[connectionId];
+        if (player.Seed != null && !player.HasFinishedBoard) {
+            return Task.CompletedTask;
+        }
+        
+        player.RestartSeed(seedNetworkMessage.Seed);
+        var networkMessage = new RivalSeedNetworkMessage { ConnectionId = connectionId, Seed = seedNetworkMessage.Seed };
+        _connectionsManager.SendMessageToAllConnectionsExceptOne(connectionId, networkMessage);
         return Task.CompletedTask;
     }
 

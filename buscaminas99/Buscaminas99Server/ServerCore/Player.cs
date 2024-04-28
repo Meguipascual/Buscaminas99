@@ -10,6 +10,7 @@ namespace ServerCore;
 public class Player 
 {
     public int PlayerId {  get; set; }
+    public int? Seed { get; private set; }
     public int Score { get; set; }
     public bool HasFinishedBoard { get; private set; }
 
@@ -41,5 +42,10 @@ public class Player
     public void TrackBoardFinished() {
         HasFinishedBoard = true;
         Console.WriteLine($"Player {PlayerId} finished their board");
+    }
+
+    public void RestartSeed(int seed) {
+        Seed = seed;
+        HasFinishedBoard = false;
     }
 }
