@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour {
 
     public void TrackCellRevealed(int cellId)
     {
-        if (revealedCellIds.Contains(cellId))
+        if (!IsPlayerAlive || revealedCellIds.Contains(cellId))
         {
             return;
         }
@@ -89,10 +89,11 @@ public class GameManager : MonoBehaviour {
         revealedCellIds.Add(cellId);
         if (revealedCellIds.Count == (numberOfCells - numberOfBombs))
         {
+            IsPlayerAlive = false;
             _gameOutcomeText.text = $"You Win";
             _gameOutcomeText.gameObject.SetActive(true);
-            IsPlayerAlive = false;
             _resetBoardButton.gameObject.SetActive(true);
+            _clientManager.NotifyBoardFinished();
         }
     }
 

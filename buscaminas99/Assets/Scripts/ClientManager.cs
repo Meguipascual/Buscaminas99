@@ -94,8 +94,16 @@ public class ClientManager : MonoBehaviour
     }
 
     public void RequestServerReset() {
+        SendEmptyMessage(NetworkMessageTypes.ResetServer);
+    }
+
+    public void NotifyBoardFinished() {
+        SendEmptyMessage(NetworkMessageTypes.BoardFinished);
+    }
+
+    private void SendEmptyMessage(NetworkMessageTypes messageType) {
         var message = new EmptyNetworkMessage();
-        message.SetNetworkMessageType(NetworkMessageTypes.ResetServer);
+        message.SetNetworkMessageType(messageType);
         SendMessage(message);
     }
 

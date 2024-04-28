@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ public class Player
 {
     public int PlayerId {  get; set; }
     public int Score { get; set; }
+    public bool HasFinishedBoard { get; private set; }
 
     Stack<Play> Plays;
 
@@ -34,5 +36,10 @@ public class Player
         {
             return null;
         }
+    }
+
+    public void TrackBoardFinished() {
+        HasFinishedBoard = true;
+        Console.WriteLine($"Player {PlayerId} finished their board");
     }
 }

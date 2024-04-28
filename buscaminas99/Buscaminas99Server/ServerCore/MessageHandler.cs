@@ -11,10 +11,12 @@ public class MessageHandler : IDisposable {
     public event SeedNetworkMessageReceivedDelegate OnSeedNetworkMessageReceived = null!;
     public delegate Task ResetServerRequestReceivedDelegate();
     public event ResetServerRequestReceivedDelegate OnResetServerRequestReceived = null!;
-    public delegate void UndoPlayNetworkMessageReceivedDelegate(int targetPlayerId, UndoPlayNetworkMessage undoPlayNetworkMessage);
+    public delegate Task UndoPlayNetworkMessageReceivedDelegate(int targetPlayerId, UndoPlayNetworkMessage undoPlayNetworkMessage);
     public event UndoPlayNetworkMessageReceivedDelegate OnUndoPlayNetworkMessageReceived = null!;
-    public delegate void CellIdNetworkmessageReceivedDelegate(int connectionId, CellIdNetworkMessage message);
-    public event CellIdNetworkmessageReceivedDelegate OnCellIdMessageReceived = null!;
+    public delegate Task CellIdNetworkMessageReceivedDelegate(int connectionId, CellIdNetworkMessage message);
+    public event CellIdNetworkMessageReceivedDelegate OnCellIdMessageReceived = null!;
+    public delegate Task BoardFinishedNetworkMessageReceivedDelegate(int connectionId);
+    public event BoardFinishedNetworkMessageReceivedDelegate OnBoardFinishedNetworkMessageReceived = null!;
 
 
 
@@ -40,7 +42,7 @@ public class MessageHandler : IDisposable {
                 if (_serverState.IsGameActive) {
                     var cellIdMessage = CellIdNetworkMessage.FromMessageReader(messageReader);
                     networkMessage = new RivalCellIdNetworkMessage { ConnectionId = connectionId, CellId = cellIdMessage.CellId };
-                	OnCellIdMessageReceived.Invoke(connectionId, cellIdMessage);
+                	OnCellIdMessageReceived?.Invoke(connectionId, cellIdMessage);
                     Console.WriteLine($"Rival Cell Id received: {cellIdMessage.CellId}");
                 }
                 break;
@@ -50,8 +52,11 @@ public class MessageHandler : IDisposable {
                 break;
             case NetworkMessageTypes.UndoPlay:
                 var undoPlayMessage = UndoPlayNetworkMessage.FromMessageReader(messageReader);
-                OnUndoPlayNetworkMessageReceived.Invoke(connectionId, undoPlayMessage);
+                OnUndoPlayNetworkMessageReceived?.Invoke(connectionId, undoPlayMessage);
                 Console.WriteLine($"Undo server request received");
+                break;
+            case NetworkMessageTypes.BoardFinished:
+                OnBoardFinishedNetworkMessageReceived?.Invoke(connectionId);
                 break;
             default: 
                 Console.WriteLine($"Invalid message tag received: {messageReader.Tag}");

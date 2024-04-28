@@ -23,10 +23,9 @@ public sealed class PlayersManager : IDisposable {
 
         _messageHandler = messageHandler;
         _messageHandler.OnSeedNetworkMessageReceived += SetPlayerSeed;
-        _messageHandler.OnUndoPlayNetworkMessageReceived += DoThings;
+        _messageHandler.OnUndoPlayNetworkMessageReceived += UndoPlay;
         _messageHandler.OnCellIdMessageReceived += SavePlayerPlay;
-
-
+        _messageHandler.OnBoardFinishedNetworkMessageReceived += TrackBoardFinished;
     }
 
     public void Reset() {
@@ -71,13 +70,14 @@ public sealed class PlayersManager : IDisposable {
         return _playersByConnectionId[playerId];
     }
 
-    public void SavePlayerPlay(int connectionId, CellIdNetworkMessage message)
+    private Task SavePlayerPlay(int connectionId, CellIdNetworkMessage message)
     {
         Console.WriteLine($"Play received for player:{connectionId} message:{message}");
         _playersByConnectionId[connectionId].PushPlay(message);
+        return Task.CompletedTask;
     }
 
-    public void DoThings(int connectionId, UndoPlayNetworkMessage undoPlayNetworkMessage)
+    private Task UndoPlay(int connectionId, UndoPlayNetworkMessage undoPlayNetworkMessage)
     {
         //Change method name plis
         var player = GetPlayer(undoPlayNetworkMessage.TargetPlayerId);
@@ -91,12 +91,20 @@ public sealed class PlayersManager : IDisposable {
             var message = new UndoMessageCommandNetworkMessage { TargetPlayerId = player.PlayerId, DiscoverCellIds = play.DiscoverCellIds.ToList() };
             _connectionsManager.BroadcastMessage(message);
         }
+
+        return Task.CompletedTask;
+    }
+
+    private Task TrackBoardFinished(int connectionId) {
+        _playersByConnectionId[connectionId].TrackBoardFinished();
+        return Task.CompletedTask;
     }
 
     public void Dispose() {
         _connectionsManager.OnConnectionCreated -= HandleNewPlayerConnection;
         _messageHandler.OnSeedNetworkMessageReceived -= SetPlayerSeed;
-        _messageHandler.OnUndoPlayNetworkMessageReceived -= DoThings;
+        _messageHandler.OnUndoPlayNetworkMessageReceived -= UndoPlay;
         _messageHandler.OnCellIdMessageReceived -= SavePlayerPlay;
+        _messageHandler.OnBoardFinishedNetworkMessageReceived -= TrackBoardFinished;
     }
 }
