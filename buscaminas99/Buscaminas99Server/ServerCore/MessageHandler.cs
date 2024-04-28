@@ -12,6 +12,8 @@ public class MessageHandler : IDisposable {
     public event ResetServerRequestReceivedDelegate OnResetServerRequestReceived = null!;
     public delegate void UndoPlayNetworkMessageReceivedDelegate(int targetPlayerId, UndoPlayNetworkMessage undoPlayNetworkMessage);
     public event UndoPlayNetworkMessageReceivedDelegate OnUndoPlayNetworkMessageReceived = null!;
+    public delegate void CellIdNetworkmessageReceivedDelegate(int connectionId, CellIdNetworkMessage message);
+    public event CellIdNetworkmessageReceivedDelegate OnCellIdMessageReceived = null!;
 
 
 
@@ -34,7 +36,7 @@ public class MessageHandler : IDisposable {
             case NetworkMessageTypes.CellId:
                 var cellIdMessage = CellIdNetworkMessage.FromMessageReader(messageReader);
                 networkMessage = new RivalCellIdNetworkMessage { ConnectionId = connectionId, CellId = cellIdMessage.CellId };
-
+                OnCellIdMessageReceived.Invoke(connectionId, cellIdMessage);
                 Console.WriteLine($"Rival Cell Id received: {cellIdMessage.CellId}");
                 break;
             case NetworkMessageTypes.ResetServer:
@@ -45,7 +47,6 @@ public class MessageHandler : IDisposable {
                 var undoPlayMessage = UndoPlayNetworkMessage.FromMessageReader(messageReader);
                 OnUndoPlayNetworkMessageReceived.Invoke(connectionId, undoPlayMessage);
                 Console.WriteLine($"Undo server request received");
-
                 break;
             default: 
                 Console.WriteLine($"Invalid message tag received: {messageReader.Tag}");

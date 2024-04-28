@@ -29,6 +29,7 @@ public class ClientManager : MonoBehaviour
         clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(ipAddress, 6501));
         clientConnection.DataReceived += HandleMessage;
         clientConnection.ConnectAsync();
+        _playersById = new Dictionary<int, Player>();
     }
 
     // DO NOT DELETE - We'll use this when we want to use real online multiplayer
@@ -135,14 +136,14 @@ public class ClientManager : MonoBehaviour
             case NetworkMessageTypes.ConnectionACK:
                 var connectionACKMessage = ConnectionACKNetworkMessage.FromMessageReader( messageReader);
                 _playerId = connectionACKMessage.PlayerId;
-                Debug.Log($"Player Connected Id Received: {_playerId}");
+                Debug.Log($"Player ConnectedACK Id Received: {_playerId}");
                 break;
             case NetworkMessageTypes.NewPlayerConnected: 
                 var newPlayerConnectedMessage = NewPlayerConnectedNetworkMessage.FromMessageReader( messageReader);
+                Debug.Log($"Player Connected Id Received: {newPlayerConnectedMessage.PlayerId}");
                 var player = new Player();
                 player.PlayerId = newPlayerConnectedMessage.PlayerId;
-                _playersById.Add(newPlayerConnectedMessage.PlayerId, player);
-                Debug.Log($"Player Connected Id Received: {newPlayerConnectedMessage.PlayerId}");
+                _playersById.Add(player.PlayerId, player);
                 break;
             case NetworkMessageTypes.UndoCommand:
                 var undoCommandMessage = UndoMessageCommandNetworkMessage.FromMessageReader( messageReader);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using static Hazel.Udp.FewerThreads.ThreadLimitedUdpConnectionListener;
 
 namespace ServerCore; 
@@ -18,6 +19,7 @@ public sealed class PlayersManager : IDisposable {
         _messageHandler = messageHandler;
         _messageHandler.OnSeedNetworkMessageReceived += SetPlayerSeed;
         _messageHandler.OnUndoPlayNetworkMessageReceived += DoThings;
+        _messageHandler.OnCellIdMessageReceived += SavePlayerPlay;
 
 
     }
@@ -65,20 +67,30 @@ public sealed class PlayersManager : IDisposable {
 
     public void SavePlayerPlay(int connectionId, CellIdNetworkMessage message)
     {
+        Console.WriteLine($"Play received for player:{connectionId} message:{message}");
         _playersByConnectionId[connectionId].PushPlay(message);
     }
 
     public void DoThings(int connectionId, UndoPlayNetworkMessage undoPlayNetworkMessage)
     {
+        //Change method name plis
         var player = GetPlayer(undoPlayNetworkMessage.TargetPlayerId);
         var play = player.PopPlay();
-        var message = new UndoMessageCommandNetworkMessage { TargetPlayerId = player.PlayerId, DiscoverCellIds = play.DiscoverCellIds.ToList() };
-        _connectionsManager.BroadcastMessage(message);
+        if (play == null) 
+        {
+            Console.WriteLine($"There are no plays in this player (Id:{undoPlayNetworkMessage.TargetPlayerId}) stack");
+        }
+        else
+        {
+            var message = new UndoMessageCommandNetworkMessage { TargetPlayerId = player.PlayerId, DiscoverCellIds = play.DiscoverCellIds.ToList() };
+            _connectionsManager.BroadcastMessage(message);
+        }
     }
 
     public void Dispose() {
         _connectionsManager.OnConnectionCreated -= HandleNewPlayerConnection;
         _messageHandler.OnSeedNetworkMessageReceived -= SetPlayerSeed;
         _messageHandler.OnUndoPlayNetworkMessageReceived -= DoThings;
+        _messageHandler.OnCellIdMessageReceived -= SavePlayerPlay;
     }
 }
