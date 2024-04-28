@@ -4,12 +4,14 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
     [SerializeField] private bool _overrideIsGameActive;
     [SerializeField] private TextMeshProUGUI _gameOutcomeText;
     [SerializeField] private GameTimer _gameTimer;
+    [SerializeField] private Button _resetBoardButton;
     
     private ClientManager _clientManager;
     private BoardManager _localBoardManager;
@@ -32,6 +34,8 @@ public class GameManager : MonoBehaviour {
 
         var boardManagers = FindObjectsOfType<BoardManager>();
         _localBoardManager = boardManagers.Single(boardManager => !boardManager.IsRivalBoard);
+        
+        _resetBoardButton.gameObject.SetActive(false);
     }
 
     private void OnEnable() {
@@ -88,6 +92,7 @@ public class GameManager : MonoBehaviour {
             _gameOutcomeText.text = $"You Win";
             _gameOutcomeText.gameObject.SetActive(true);
             IsPlayerAlive = false;
+            _resetBoardButton.gameObject.SetActive(true);
         }
     }
 
@@ -95,6 +100,7 @@ public class GameManager : MonoBehaviour {
         Debug.Log("GameOver, te has murido muy fuerte");
         IsPlayerAlive = false;
         _gameOutcomeText.gameObject.SetActive(true);
+        _resetBoardButton.gameObject.SetActive(true);
     }
 
     public void StartNewBoard() {
@@ -102,6 +108,7 @@ public class GameManager : MonoBehaviour {
         revealedCellIds.Clear();
         _gameOutcomeText.gameObject.SetActive(false);
         _localBoardManager.Reset();
+        _resetBoardButton.gameObject.SetActive(false);
     }
 
     private void HandleGameStarted(GameStartedNetworkMessage gameStartedNetworkMessage) {

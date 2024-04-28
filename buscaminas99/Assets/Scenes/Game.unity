@@ -1986,6 +1986,7 @@ MonoBehaviour:
   _overrideIsGameActive: 0
   _gameOutcomeText: {fileID: 1588036710}
   _gameTimer: {fileID: 2028701472}
+  _resetBoardButton: {fileID: 1517185298}
 --- !u!4 &2028701471
 Transform:
   m_ObjectHideFlags: 0
