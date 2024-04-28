@@ -100,7 +100,6 @@ public class GameManager : MonoBehaviour {
         Debug.Log("GameOver, te has murido muy fuerte");
         IsPlayerAlive = false;
         _gameOutcomeText.gameObject.SetActive(true);
-        _resetBoardButton.gameObject.SetActive(true);
     }
 
     public void StartNewBoard() {
