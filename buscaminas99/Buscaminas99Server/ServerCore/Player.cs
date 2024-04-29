@@ -39,8 +39,9 @@ public class Player
         }
     }
 
-    public void TrackBoardFinished() {
+    public void TrackBoardFinished(int points) {
         HasFinishedBoard = true;
+        Score += points;
         Console.WriteLine($"Player {PlayerId} finished their board");
     }
 

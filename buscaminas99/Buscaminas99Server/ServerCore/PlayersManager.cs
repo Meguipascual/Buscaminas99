@@ -8,6 +8,7 @@ public sealed class PlayersManager : IDisposable {
 
     private readonly ConnectionsManager _connectionsManager;
     private readonly MessageHandler _messageHandler;
+    private readonly ServerState _serverState;
     
     private readonly Dictionary<int, Player> _playersByConnectionId = new();
 
@@ -16,7 +17,10 @@ public sealed class PlayersManager : IDisposable {
 
     public int PlayersCount => _playersByConnectionId.Count;
 
-    public PlayersManager(ConnectionsManager connectionsManager, MessageHandler messageHandler) {
+    public PlayersManager(
+        ConnectionsManager connectionsManager, 
+        MessageHandler messageHandler,
+        ServerState serverState) {
         _connectionsManager = connectionsManager;
         _connectionsManager.OnConnectionCreated += HandleNewPlayerConnection;
 
@@ -25,6 +29,8 @@ public sealed class PlayersManager : IDisposable {
         _messageHandler.OnUndoPlayNetworkMessageReceived += UndoPlay;
         _messageHandler.OnCellIdMessageReceived += SavePlayerPlay;
         _messageHandler.OnBoardFinishedNetworkMessageReceived += TrackBoardFinished;
+
+        _serverState = serverState;
     }
 
     public void Reset() {
@@ -110,7 +116,8 @@ public sealed class PlayersManager : IDisposable {
     }
 
     private Task TrackBoardFinished(int connectionId) {
-        _playersByConnectionId[connectionId].TrackBoardFinished();
+        var points = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - _serverState.StartTimestamp;
+        _playersByConnectionId[connectionId].TrackBoardFinished((int)points);
         return Task.CompletedTask;
     }
 

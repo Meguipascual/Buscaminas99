@@ -17,10 +17,7 @@ public class MessageHandler : IDisposable {
     public event CellIdNetworkMessageReceivedDelegate OnCellIdMessageReceived = null!;
     public delegate Task BoardFinishedNetworkMessageReceivedDelegate(int connectionId);
     public event BoardFinishedNetworkMessageReceivedDelegate OnBoardFinishedNetworkMessageReceived = null!;
-
-
-
-
+    
     public MessageHandler(ConnectionsManager connectionsManager, ServerState serverState) {
         _connectionsManager = connectionsManager;
         _connectionsManager.OnMessageReceived += ProcessMessage;
