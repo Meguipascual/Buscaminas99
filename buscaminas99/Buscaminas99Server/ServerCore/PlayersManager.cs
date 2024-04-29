@@ -116,7 +116,7 @@ public sealed class PlayersManager : IDisposable {
     }
 
     private Task TrackBoardFinished(int connectionId) {
-        var points = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - _serverState.StartTimestamp;
+        var points = _serverState.EndTimestamp - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         _playersByConnectionId[connectionId].TrackBoardFinished((int)points);
 
         var scoreUpdatedNetworkMessage = new ScoreUpdatedNetworkMessage {
