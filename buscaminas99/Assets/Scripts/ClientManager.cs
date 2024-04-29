@@ -168,6 +168,10 @@ public class ClientManager : MonoBehaviour {
                 var gameStartedMessage = GameStartedNetworkMessage.FromMessageReader(messageReader);
                 pendingReceivedMessages.Enqueue(gameStartedMessage);
                 break;
+            case NetworkMessageTypes.ScoreUpdated:
+                var scoreUpdatedMessage = ScoreUpdatedNetworkMessage.FromMessageReader(messageReader);
+                pendingReceivedMessages.Enqueue(scoreUpdatedMessage);
+                break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
     }
@@ -203,6 +207,12 @@ public class ClientManager : MonoBehaviour {
                 AddPlayer(connectionACKMessage.PlayerId);
                 _playerIdText.text = $"Player {_playerId}";
                 Debug.Log($"Player ConnectedACK Id Received: {_playerId}");
+                break;
+            case NetworkMessageTypes.ScoreUpdated:
+                var scoreUpdatedMessage = (ScoreUpdatedNetworkMessage)networkMessage;
+                _playersById[scoreUpdatedMessage.PlayerId].Score = scoreUpdatedMessage.Score;
+                UpdateScoresText();
+                Debug.Log($"Score updated for player {scoreUpdatedMessage.PlayerId}: {scoreUpdatedMessage.Score}");
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(networkMessage.NetworkMessageType));
         }
