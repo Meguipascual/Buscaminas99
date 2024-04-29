@@ -17,4 +17,5 @@ public enum NetworkMessageTypes
     GameStarted = 11,
     UndoCommand = 12,
     BoardFinished = 13,
+    ScoreUpdated = 14,
 }

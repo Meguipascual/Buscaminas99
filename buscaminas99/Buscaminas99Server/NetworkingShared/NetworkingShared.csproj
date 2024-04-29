@@ -30,6 +30,9 @@
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\RivalSeedNetworkMessage.cs">
         <Link>RivalSeedNetworkMessage.cs</Link>
       </Compile>
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\ScoreUpdatedNetworkMessage.cs">
+        <Link>ScoreUpdatedNetworkMessage.cs</Link>
+      </Compile>
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\SeedNetworkMessage.cs">
         <Link>SeedNetworkMessage.cs</Link>
       </Compile>
