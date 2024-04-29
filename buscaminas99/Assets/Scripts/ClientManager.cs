@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Net;
 using Hazel;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using TMPro;
 using UnityEngine.SceneManagement;
@@ -15,7 +16,7 @@ public class ClientManager : MonoBehaviour {
     private UnityUdpClientConnection clientConnection;
     private Queue<int> cellIdsToProcess = new Queue<int>();
     private Queue<INetworkMessage> unsentMessages = new Queue<INetworkMessage>();
-    private Queue<INetworkMessage> pendingReceivedMessages = new Queue<INetworkMessage>();
+    private ConcurrentQueue<INetworkMessage> pendingReceivedMessages = new ConcurrentQueue<INetworkMessage>();
     private BoardManager rivalBoardManager;
     private bool mustRestartScene;
     private int? rivalSeed;
@@ -152,15 +153,15 @@ public class ClientManager : MonoBehaviour {
                 Debug.Log($"Reset Game Warning message received");
                 break;
             case NetworkMessageTypes.ConnectionACK:
-                var connectionACKMessage = ConnectionACKNetworkMessage.FromMessageReader( messageReader);
+                var connectionACKMessage = ConnectionACKNetworkMessage.FromMessageReader(messageReader);
                 pendingReceivedMessages.Enqueue(connectionACKMessage);
                 break;
             case NetworkMessageTypes.NewPlayerConnected: 
-                var newPlayerConnectedMessage = NewPlayerConnectedNetworkMessage.FromMessageReader( messageReader);
+                var newPlayerConnectedMessage = NewPlayerConnectedNetworkMessage.FromMessageReader(messageReader);
                 pendingReceivedMessages.Enqueue(newPlayerConnectedMessage);
                 break;
             case NetworkMessageTypes.UndoCommand:
-                var undoCommandMessage = UndoMessageCommandNetworkMessage.FromMessageReader( messageReader);
+                var undoCommandMessage = UndoMessageCommandNetworkMessage.FromMessageReader(messageReader);
                 Debug.Log($"Undo Command message received");
                 break;
             case NetworkMessageTypes.GameStarted:
@@ -177,7 +178,9 @@ public class ClientManager : MonoBehaviour {
     /// </summary>
     private void HandlePendingReceivedMessages() {
         while (pendingReceivedMessages.Count > 0) {
-            HandlePendingReceivedMessage(pendingReceivedMessages.Dequeue());
+            if (pendingReceivedMessages.TryDequeue(out var message)) {
+                HandlePendingReceivedMessage(message);
+            }
         }
     }
 

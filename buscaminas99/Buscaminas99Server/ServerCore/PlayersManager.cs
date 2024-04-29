@@ -66,8 +66,16 @@ public sealed class PlayersManager : IDisposable {
         var player = new Player();
         player.PlayerId = connectionId;
         _playersByConnectionId.Add(connectionId, player);
+        
         _connectionsManager.SendMessageToConnection(connectionId, new ConnectionACKNetworkMessage { PlayerId = connectionId });
+        
+        // Let existing players know about new player
         _connectionsManager.SendMessageToAllConnectionsExceptOne(connectionId, new NewPlayerConnectedNetworkMessage { PlayerId = connectionId });
+        
+        // Let new player know about existing players
+        foreach (var rivalPlayer in _playersByConnectionId.Values.Where(p => p.PlayerId != connectionId)) {
+            _connectionsManager.SendMessageToConnection(connectionId, new NewPlayerConnectedNetworkMessage{ PlayerId = rivalPlayer.PlayerId });
+        }
         await OnPlayerAdded.Invoke(connectionId);
     }
 
