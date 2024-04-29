@@ -4,11 +4,13 @@ using UnityEngine;
 using System.Net;
 using Hazel;
 using System;
+using System.Linq;
 using TMPro;
 using UnityEngine.SceneManagement;
 
 public class ClientManager : MonoBehaviour {
     [SerializeField] private TMP_Text _playerIdText;
+    [SerializeField] private TMP_Text _scoresText;
     
     private UnityUdpClientConnection clientConnection;
     private Queue<int> cellIdsToProcess = new Queue<int>();
@@ -155,10 +157,7 @@ public class ClientManager : MonoBehaviour {
                 break;
             case NetworkMessageTypes.NewPlayerConnected: 
                 var newPlayerConnectedMessage = NewPlayerConnectedNetworkMessage.FromMessageReader( messageReader);
-                Debug.Log($"Player Connected Id Received: {newPlayerConnectedMessage.PlayerId}");
-                var player = new Player();
-                player.PlayerId = newPlayerConnectedMessage.PlayerId;
-                _playersById.Add(player.PlayerId, player);
+                pendingReceivedMessages.Enqueue(newPlayerConnectedMessage);
                 break;
             case NetworkMessageTypes.UndoCommand:
                 var undoCommandMessage = UndoMessageCommandNetworkMessage.FromMessageReader( messageReader);
@@ -190,13 +189,36 @@ public class ClientManager : MonoBehaviour {
                 Debug.Log($"Setting start time to {gameStartedMessage.StartTimestamp}");
                 OnGameStarted?.Invoke(gameStartedMessage);
                 break;
+            case NetworkMessageTypes.NewPlayerConnected:
+                var newPlayerConnectedMessage = (NewPlayerConnectedNetworkMessage)networkMessage;
+                Debug.Log($"Player Connected Id Received: {newPlayerConnectedMessage.PlayerId}");
+                AddPlayer(newPlayerConnectedMessage.PlayerId);
+                break;
             case NetworkMessageTypes.ConnectionACK:
                 var connectionACKMessage = (ConnectionACKNetworkMessage)networkMessage;
                 _playerId = connectionACKMessage.PlayerId;
+                AddPlayer(connectionACKMessage.PlayerId);
                 _playerIdText.text = $"Player {_playerId}";
                 Debug.Log($"Player ConnectedACK Id Received: {_playerId}");
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(networkMessage.NetworkMessageType));
         }
+    }
+
+    private Player AddPlayer(int connectionId) {
+        var player = new Player();
+        player.PlayerId = connectionId;
+        _playersById.Add(player.PlayerId, player);
+        UpdateScoresText();
+        return player;
+    }
+
+    private void UpdateScoresText() {
+        var scoresText = string.Empty;
+        var playersSortedByScore = _playersById.Values.OrderByDescending(p => p.Score);
+        foreach (var player in playersSortedByScore) {
+            scoresText += $"Player {player.PlayerId} - Score: {player.Score}{Environment.NewLine}";
+        }
+        _scoresText.text = scoresText;
     }
 }
