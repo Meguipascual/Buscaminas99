@@ -7,11 +7,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using TMPro;
+using TMPro.EditorUtilities;
 using UnityEngine.SceneManagement;
 
 public class ClientManager : MonoBehaviour {
     [SerializeField] private TMP_Text _playerIdText;
     [SerializeField] private TMP_Text _scoresText;
+
+    private GameManager _gameManager;
     
     private UnityUdpClientConnection clientConnection;
     private Queue<int> cellIdsToProcess = new Queue<int>();
@@ -29,6 +32,8 @@ public class ClientManager : MonoBehaviour {
     public bool IsOnline => clientConnection.State == ConnectionState.Connected;
 
     void Start() {
+        _gameManager = FindObjectOfType<GameManager>();
+        
         var ipAddress = IPAddress.Loopback; // For localhost, replace with GetIPAddress(x.x.x.x) and the proper ip for online tests
         FindObjectOfType<NetworkManager>().IsClient = true;
         rivalBoardManager = GameObject.FindGameObjectWithTag(Tags.RivalBoard).GetComponent<BoardManager>();
@@ -210,6 +215,11 @@ public class ClientManager : MonoBehaviour {
                 break;
             case NetworkMessageTypes.ScoreUpdated:
                 var scoreUpdatedMessage = (ScoreUpdatedNetworkMessage)networkMessage;
+
+                if (scoreUpdatedMessage.PlayerId == _playerId) {
+                    _gameManager.DisplayBoardFinishedText(scoreUpdatedMessage.Score - _playersById[scoreUpdatedMessage.PlayerId].Score);
+                }
+                
                 _playersById[scoreUpdatedMessage.PlayerId].Score = scoreUpdatedMessage.Score;
                 UpdateScoresText();
                 Debug.Log($"Score updated for player {scoreUpdatedMessage.PlayerId}: {scoreUpdatedMessage.Score}");
