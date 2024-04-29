@@ -4,10 +4,12 @@ using UnityEngine;
 using System.Net;
 using Hazel;
 using System;
+using TMPro;
 using UnityEngine.SceneManagement;
 
-public class ClientManager : MonoBehaviour
-{
+public class ClientManager : MonoBehaviour {
+    [SerializeField] private TMP_Text _playerIdText;
+    
     private UnityUdpClientConnection clientConnection;
     private Queue<int> cellIdsToProcess = new Queue<int>();
     private Queue<INetworkMessage> unsentMessages = new Queue<INetworkMessage>();
@@ -149,8 +151,7 @@ public class ClientManager : MonoBehaviour
                 break;
             case NetworkMessageTypes.ConnectionACK:
                 var connectionACKMessage = ConnectionACKNetworkMessage.FromMessageReader( messageReader);
-                _playerId = connectionACKMessage.PlayerId;
-                Debug.Log($"Player ConnectedACK Id Received: {_playerId}");
+                pendingReceivedMessages.Enqueue(connectionACKMessage);
                 break;
             case NetworkMessageTypes.NewPlayerConnected: 
                 var newPlayerConnectedMessage = NewPlayerConnectedNetworkMessage.FromMessageReader( messageReader);
@@ -188,6 +189,12 @@ public class ClientManager : MonoBehaviour
                 var gameStartedMessage = (GameStartedNetworkMessage)networkMessage;
                 Debug.Log($"Setting start time to {gameStartedMessage.StartTimestamp}");
                 OnGameStarted?.Invoke(gameStartedMessage);
+                break;
+            case NetworkMessageTypes.ConnectionACK:
+                var connectionACKMessage = (ConnectionACKNetworkMessage)networkMessage;
+                _playerId = connectionACKMessage.PlayerId;
+                _playerIdText.text = $"Player {_playerId}";
+                Debug.Log($"Player ConnectedACK Id Received: {_playerId}");
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(networkMessage.NetworkMessageType));
         }
