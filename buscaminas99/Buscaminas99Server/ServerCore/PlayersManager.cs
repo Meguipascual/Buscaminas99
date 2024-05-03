@@ -37,11 +37,10 @@ public sealed class PlayersManager : IDisposable {
         _playersByConnectionId.Clear();
     }
 
-    private Task HandleNewPlayerConnection(int connectionId)
+    private async Task HandleNewPlayerConnection(int connectionId)
     {
-        BroadcastExistingPlayerSeeds(connectionId);
-        CreatePlayer(connectionId);
-        return Task.CompletedTask;
+        await BroadcastExistingPlayerSeeds(connectionId);
+        await CreatePlayer(connectionId);
     }
 
     private Task BroadcastExistingPlayerSeeds(int connectionId) {

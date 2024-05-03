@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace ServerCore; 
 
 public class ServerController : IDisposable {
@@ -26,6 +28,7 @@ public class ServerController : IDisposable {
     }
 
     private Task StartGameIfEnoughPlayers(int playerId) {
+        Console.WriteLine($"Have {_playersManager.PlayersCount} players, need {MinPlayersToStartGame}");
         return _playersManager.PlayersCount >= MinPlayersToStartGame ? StartGame() : Task.CompletedTask;
     }
 

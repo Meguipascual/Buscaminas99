@@ -27,6 +27,9 @@ public sealed class ConnectionsManager : IDisposable {
 
     public void Reset() {
         _nextConnectionId = 0;
+        foreach (var kvp in _connectionsById) {
+            kvp.Value.Disconnect("Reset game");
+        }
         _connectionsById.Clear();
     }
 
