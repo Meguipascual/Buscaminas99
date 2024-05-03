@@ -23,7 +23,7 @@ public class ClientManager : MonoBehaviour {
     private BoardManager rivalBoardManager;
     private bool mustRestartScene;
     private int? rivalSeed;
-    private int _playerId;
+    private int _playerId = -1;
     private Dictionary<int, Player> _playersById = new Dictionary<int, Player>();
     
     public delegate void GameStartedDelegate(GameStartedNetworkMessage gameStartedNetworkMessage);
@@ -180,6 +180,7 @@ public class ClientManager : MonoBehaviour {
             case NetworkMessageTypes.GameEnded:
                 var gameEndedMessage = GameEndedNetworkMessage.FromMessageReader(messageReader);
                 Debug.Log($"Game ended message received with {gameEndedMessage.Scores.Count} scores");
+                pendingReceivedMessages.Enqueue(gameEndedMessage);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
@@ -228,6 +229,13 @@ public class ClientManager : MonoBehaviour {
                 UpdateScoresText();
                 Debug.Log($"Score updated for player {scoreUpdatedMessage.PlayerId}: {scoreUpdatedMessage.Score}");
                 break;
+            case NetworkMessageTypes.GameEnded:
+                var gameEndedMessage = (GameEndedNetworkMessage)networkMessage;
+                foreach (var scoreDto in gameEndedMessage.Scores) {
+                    _playersById[scoreDto.PlayerId].Score = scoreDto.Score;
+                }
+                SetEndOfGameScoresText();
+                break;
             default: throw new ArgumentOutOfRangeException(nameof(networkMessage.NetworkMessageType));
         }
     }
@@ -247,5 +255,11 @@ public class ClientManager : MonoBehaviour {
             scoresText += $"Player {player.PlayerId} - Score: {player.Score}{Environment.NewLine}";
         }
         _scoresText.text = scoresText;
+    }
+
+    private void SetEndOfGameScoresText() {
+        UpdateScoresText();
+        _scoresText.text = $"(END OF GAME) {Environment.NewLine}{_scoresText.text}";
+        _scoresText.fontStyle = FontStyles.Bold;
     }
 }
