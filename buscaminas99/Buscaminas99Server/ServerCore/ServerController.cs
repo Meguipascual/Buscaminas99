@@ -36,7 +36,7 @@ public class ServerController : IDisposable {
             GameDurationSeconds = ServerState.GameDurationSeconds,
         };
         _connectionsManager.BroadcastMessage(gameStartedMessage);
-        return Task.CompletedTask;
+        return FinishGameOnceTimeIsOver();
     }
 
     private async Task ResetServerAfterWaitTime() {
@@ -55,6 +55,17 @@ public class ServerController : IDisposable {
         _connectionsManager.Reset();
         _playersManager.Reset();
         _isResetting = false;
+    }
+    
+    private Task FinishGameOnceTimeIsOver() {
+        const int MsPerSecond = 1000;
+        Task.Delay(ServerState.GameDurationSeconds * MsPerSecond).ContinueWith(t => FinishGame());
+        return Task.CompletedTask;
+    }
+
+    private Task FinishGame() {
+        Console.WriteLine("Game ended");
+        return Task.CompletedTask;
     }
 
     public void Dispose() {
