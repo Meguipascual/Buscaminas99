@@ -65,6 +65,7 @@ public class ServerController : IDisposable {
 
     private Task FinishGame() {
         Console.WriteLine("Game ended");
+        _playersManager.FinishGame();
         return Task.CompletedTask;
     }
 

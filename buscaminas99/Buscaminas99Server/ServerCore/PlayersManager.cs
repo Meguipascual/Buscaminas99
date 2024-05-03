@@ -90,6 +90,23 @@ public sealed class PlayersManager : IDisposable {
         return _playersByConnectionId[playerId];
     }
 
+    public void FinishGame() {
+        var scores = new List<GameEndedPlayerScoreDto>();
+        foreach (var kvp in _playersByConnectionId) {
+            var scoreDto = new GameEndedPlayerScoreDto {
+                PlayerId = kvp.Value.PlayerId,
+                Score = kvp.Value.Score,
+            };
+            scores.Add(scoreDto);
+        }
+
+        var gameEndedMessage = new GameEndedNetworkMessage {
+            Scores = scores.ToList()
+        };
+        
+        _connectionsManager.BroadcastMessage(gameEndedMessage);
+    }
+
     private Task SavePlayerPlay(int connectionId, CellIdNetworkMessage message)
     {
         Console.WriteLine($"Play received for player:{connectionId} message:{message}");

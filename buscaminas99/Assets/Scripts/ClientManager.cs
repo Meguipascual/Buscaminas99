@@ -177,6 +177,10 @@ public class ClientManager : MonoBehaviour {
                 var scoreUpdatedMessage = ScoreUpdatedNetworkMessage.FromMessageReader(messageReader);
                 pendingReceivedMessages.Enqueue(scoreUpdatedMessage);
                 break;
+            case NetworkMessageTypes.GameEnded:
+                var gameEndedMessage = GameEndedNetworkMessage.FromMessageReader(messageReader);
+                Debug.Log($"Game ended message received with {gameEndedMessage.Scores.Count} scores");
+                break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
     }
