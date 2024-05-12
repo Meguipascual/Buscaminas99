@@ -36,12 +36,9 @@ public class MessageHandler : IDisposable {
                 await OnSeedNetworkMessageReceived.Invoke(connectionId, seedMessage);
                 break;
             case NetworkMessageTypes.CellId:
-                if (_serverState.IsGameActive) {
-                    var cellIdMessage = CellIdNetworkMessage.FromMessageReader(messageReader);
-                    networkMessage = new RivalCellIdNetworkMessage { ConnectionId = connectionId, CellId = cellIdMessage.CellId };
-                	OnCellIdMessageReceived?.Invoke(connectionId, cellIdMessage);
-                    Console.WriteLine($"Rival Cell Id received: {cellIdMessage.CellId}");
-                }
+                var cellIdMessage = CellIdNetworkMessage.FromMessageReader(messageReader);
+                OnCellIdMessageReceived?.Invoke(connectionId, cellIdMessage);
+                Console.WriteLine($"Rival Cell Id received: {cellIdMessage.CellId}");
                 break;
             case NetworkMessageTypes.ResetServer:
                 Console.WriteLine($"Reset server request received");

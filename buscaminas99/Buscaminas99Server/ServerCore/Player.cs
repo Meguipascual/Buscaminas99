@@ -14,6 +14,7 @@ public class Player
     public int Score { get; set; }
     public bool HasFinishedBoard { get; private set; }
     public bool IsEliminated { get; set; }
+    public bool CanPlay => !IsEliminated && !HasFinishedBoard;
 
     Stack<Play> Plays;
 

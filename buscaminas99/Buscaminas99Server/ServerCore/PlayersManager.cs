@@ -27,7 +27,7 @@ public sealed class PlayersManager : IDisposable {
         _messageHandler = messageHandler;
         _messageHandler.OnSeedNetworkMessageReceived += SetPlayerSeed;
         _messageHandler.OnUndoPlayNetworkMessageReceived += UndoPlay;
-        _messageHandler.OnCellIdMessageReceived += SavePlayerPlay;
+        _messageHandler.OnCellIdMessageReceived += PlayCell;
         _messageHandler.OnBoardFinishedNetworkMessageReceived += TrackBoardFinished;
         _messageHandler.OnPlayerEliminatedNetworkMessageReceived += EliminatePlayer;
 
@@ -107,6 +107,15 @@ public sealed class PlayersManager : IDisposable {
         _connectionsManager.BroadcastMessage(gameEndedMessage);
     }
 
+    private Task PlayCell(int connectionId, CellIdNetworkMessage message) {
+        if (_serverState.IsGameActive && _playersByConnectionId[connectionId].CanPlay) {
+            SavePlayerPlay(connectionId, message);
+            var rivalCellIdNetworkMessage = new RivalCellIdNetworkMessage { ConnectionId = connectionId, CellId = message.CellId };
+            _connectionsManager.SendMessageToAllConnectionsExceptOne(connectionId, rivalCellIdNetworkMessage);
+        }
+        return Task.CompletedTask;
+    }
+
     private Task SavePlayerPlay(int connectionId, CellIdNetworkMessage message)
     {
         Console.WriteLine($"Play received for player:{connectionId} message:{message}");
@@ -155,7 +164,7 @@ public sealed class PlayersManager : IDisposable {
         _connectionsManager.OnConnectionCreated -= HandleNewPlayerConnection;
         _messageHandler.OnSeedNetworkMessageReceived -= SetPlayerSeed;
         _messageHandler.OnUndoPlayNetworkMessageReceived -= UndoPlay;
-        _messageHandler.OnCellIdMessageReceived -= SavePlayerPlay;
+        _messageHandler.OnCellIdMessageReceived -= PlayCell;
         _messageHandler.OnBoardFinishedNetworkMessageReceived -= TrackBoardFinished;
         _messageHandler.OnPlayerEliminatedNetworkMessageReceived -= EliminatePlayer;
     }
