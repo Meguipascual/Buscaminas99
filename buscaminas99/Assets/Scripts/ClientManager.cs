@@ -12,6 +12,7 @@ using UnityEngine.SceneManagement;
 public class ClientManager : MonoBehaviour {
     [SerializeField] private TMP_Text _playerIdText;
     [SerializeField] private TMP_Text _scoresText;
+    [SerializeField] private BoardManager rivalBoardManager;
 
     private GameManager _gameManager;
     
@@ -19,7 +20,6 @@ public class ClientManager : MonoBehaviour {
     private Queue<int> cellIdsToProcess = new Queue<int>();
     private Queue<INetworkMessage> unsentMessages = new Queue<INetworkMessage>();
     private ConcurrentQueue<INetworkMessage> pendingReceivedMessages = new ConcurrentQueue<INetworkMessage>();
-    private BoardManager rivalBoardManager;
     private bool mustRestartScene;
     private int? rivalSeed;
     private int _playerId = -1;
@@ -34,7 +34,6 @@ public class ClientManager : MonoBehaviour {
         _gameManager = FindObjectOfType<GameManager>();
         
         var ipAddress = IPAddress.Loopback; // For localhost, replace with GetIPAddress(x.x.x.x) and the proper ip for online tests
-        rivalBoardManager = GameObject.FindGameObjectWithTag(Tags.RivalBoard).GetComponent<BoardManager>();
         clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(ipAddress, 6501));
         clientConnection.DataReceived += HandleMessage;
         clientConnection.ConnectAsync();
