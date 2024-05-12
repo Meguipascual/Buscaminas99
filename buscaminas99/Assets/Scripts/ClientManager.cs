@@ -186,6 +186,10 @@ public class ClientManager : MonoBehaviour {
                 Debug.Log($"Game ended message received with {gameEndedMessage.Scores.Count} scores");
                 pendingReceivedMessages.Enqueue(gameEndedMessage);
                 break;
+            case NetworkMessageTypes.RivalEliminated:
+                var rivalEliminatedMessage = RivalEliminatedNetworkMessage.FromMessageReader(messageReader);
+                Debug.Log($"Rival {rivalEliminatedMessage.PlayerId} eliminated");
+                break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
     }

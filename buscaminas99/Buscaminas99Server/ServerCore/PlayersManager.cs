@@ -157,6 +157,10 @@ public sealed class PlayersManager : IDisposable {
     public Task EliminatePlayer(int playerId) {
         _playersByConnectionId[playerId].IsEliminated = true;
         Console.WriteLine($"Player {playerId} eliminated");
+        var rivalEliminatedNetworkMessage = new RivalEliminatedNetworkMessage {
+            PlayerId = playerId,
+        };
+        _connectionsManager.SendMessageToAllConnectionsExceptOne(playerId, rivalEliminatedNetworkMessage);
         return Task.CompletedTask;
     }
 
