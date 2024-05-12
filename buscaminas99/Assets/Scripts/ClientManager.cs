@@ -8,11 +8,13 @@ using System.Collections.Concurrent;
 using System.Linq;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class ClientManager : MonoBehaviour {
     [SerializeField] private TMP_Text _playerIdText;
     [SerializeField] private TMP_Text _scoresText;
-    [SerializeField] private BoardManager rivalBoardManager;
+    [SerializeField] private BoardManager rival0BoardManager;
+    [SerializeField] private BoardManager rival1BoardManager;
 
     private GameManager _gameManager;
     
@@ -24,7 +26,8 @@ public class ClientManager : MonoBehaviour {
     private int? rivalSeed;
     private int _playerId = -1;
     private Dictionary<int, Player> _playersById = new Dictionary<int, Player>();
-    
+    private Dictionary<int, BoardManager> _boardsByPlayerId = new Dictionary<int, BoardManager>();
+
     public delegate void GameStartedDelegate(GameStartedNetworkMessage gameStartedNetworkMessage);
     public event GameStartedDelegate OnGameStarted;
 
@@ -48,9 +51,9 @@ public class ClientManager : MonoBehaviour {
     private void Update()
     {
         if (rivalSeed.HasValue) {
-            rivalBoardManager.Seed = rivalSeed.Value;
-            rivalBoardManager.Reset();
-            rivalBoardManager.GenerateBombs();
+            rival0BoardManager.Seed = rivalSeed.Value;
+            rival0BoardManager.Reset();
+            rival0BoardManager.GenerateBombs();
             rivalSeed = null;
         }
 
@@ -85,7 +88,7 @@ public class ClientManager : MonoBehaviour {
         while (cellIdsToProcess.Count > 0)
         {
             var cellId = cellIdsToProcess.Dequeue();
-            var cell = rivalBoardManager.GetCell(cellId);
+            var cell = rival0BoardManager.GetCell(cellId);
             cell.UseCell();
         }
         cellIdsToProcess.Clear();
@@ -257,6 +260,13 @@ public class ClientManager : MonoBehaviour {
         player.PlayerId = connectionId;
         _playersById.Add(player.PlayerId, player);
         UpdateScoresText();
+
+        if (_playerId != connectionId) {
+            var board = _boardsByPlayerId.Count == 0 ? rival0BoardManager : rival1BoardManager;
+            board.SetPlayerName($"Player {connectionId}");
+            _boardsByPlayerId[connectionId] = board;
+        }
+        
         return player;
     }
 

@@ -1843,6 +1843,7 @@ MonoBehaviour:
   cellPrefab: {fileID: 9091450889599495063, guid: 85be1d48ce6073f4b8c694d77fe94b92, type: 3}
   bombPrefab: {fileID: 2069316357052312468, guid: ea3c355f5945b7342899fac483032506, type: 3}
   boardCenter: {fileID: 2311836956205369930}
+  _playerNameText: {fileID: 1281434821955808961}
 --- !u!1 &4332423891951953494
 GameObject:
   m_ObjectHideFlags: 0

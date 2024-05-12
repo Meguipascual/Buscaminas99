@@ -10,10 +10,11 @@ using Random = System.Random;
 
 public class BoardManager : MonoBehaviour
 {
-
     [SerializeField] private GameObject cellPrefab;
     [SerializeField] private Bomb bombPrefab;
     [SerializeField] Transform boardCenter;
+    [SerializeField] private TMP_Text _playerNameText;
+    
     private GameManager gameManager;
     private readonly int numberOfBombs = 18;//Amount of bombs to create
     private readonly int numberOfColumns = 11;//Table columns
@@ -280,5 +281,9 @@ public class BoardManager : MonoBehaviour
                 cellById[cellId].UseCell();
             }
         }
+    }
+
+    public void SetPlayerName(string playerName) {
+        _playerNameText.text = playerName;
     }
 }

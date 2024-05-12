@@ -123,6 +123,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &76682882 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1281434821955808961, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
+  m_PrefabInstance: {fileID: 5487509920729694793}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &498362793
 GameObject:
   m_ObjectHideFlags: 0
@@ -465,7 +476,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4332423891881921942, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
       propertyPath: m_Name
-      value: RivalBoard
+      value: Rival1Board
       objectReference: {fileID: 0}
     - target: {fileID: 4332423891881921943, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
       propertyPath: m_RootOrder
@@ -511,6 +522,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5487509919107508338, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
+      propertyPath: _playerNameText
+      value: 
+      objectReference: {fileID: 1740798407}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
 --- !u!1 &705507993
@@ -606,6 +621,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &710201592 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5487509919107508338, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
+  m_PrefabInstance: {fileID: 686364936}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd1200119d67374da6ab098b2fbe284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &822023822
 GameObject:
   m_ObjectHideFlags: 0
@@ -1195,7 +1221,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerIdText: {fileID: 549977740}
   _scoresText: {fileID: 822023824}
-  rivalBoardManager: {fileID: 1666411067}
+  rival0BoardManager: {fileID: 1666411067}
+  rival1BoardManager: {fileID: 710201592}
 --- !u!4 &1213671881
 Transform:
   m_ObjectHideFlags: 0
@@ -2023,6 +2050,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccd1200119d67374da6ab098b2fbe284, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1740798407 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1281434821955808961, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
+  m_PrefabInstance: {fileID: 686364936}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1849021856
 GameObject:
   m_ObjectHideFlags: 0
@@ -2740,6 +2778,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5487509919107508338, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
+      propertyPath: _playerNameText
+      value: 
+      objectReference: {fileID: 76682882}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
 --- !u!1001 &6981851795308687079
