@@ -34,7 +34,6 @@ public class ClientManager : MonoBehaviour {
         _gameManager = FindObjectOfType<GameManager>();
         
         var ipAddress = IPAddress.Loopback; // For localhost, replace with GetIPAddress(x.x.x.x) and the proper ip for online tests
-        FindObjectOfType<NetworkManager>().IsClient = true;
         rivalBoardManager = GameObject.FindGameObjectWithTag(Tags.RivalBoard).GetComponent<BoardManager>();
         clientConnection = new UnityUdpClientConnection(new UnityLogger(true), new IPEndPoint(ipAddress, 6501));
         clientConnection.DataReceived += HandleMessage;
