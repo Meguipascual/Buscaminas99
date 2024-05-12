@@ -13,6 +13,7 @@ public class Player
     public int? Seed { get; private set; }
     public int Score { get; set; }
     public bool HasFinishedBoard { get; private set; }
+    public bool IsEliminated { get; set; }
 
     Stack<Play> Plays;
 

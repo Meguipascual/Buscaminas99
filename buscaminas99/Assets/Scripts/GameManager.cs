@@ -104,6 +104,7 @@ public class GameManager : MonoBehaviour {
         Debug.Log("GameOver, te has murido muy fuerte");
         IsPlayerAlive = false;
         _gameOutcomeText.gameObject.SetActive(true);
+        _clientManager.NotifyPlayerEliminated();
     }
 
     public void StartNewBoard() {

@@ -29,6 +29,7 @@ public sealed class PlayersManager : IDisposable {
         _messageHandler.OnUndoPlayNetworkMessageReceived += UndoPlay;
         _messageHandler.OnCellIdMessageReceived += SavePlayerPlay;
         _messageHandler.OnBoardFinishedNetworkMessageReceived += TrackBoardFinished;
+        _messageHandler.OnPlayerEliminatedNetworkMessageReceived += EliminatePlayer;
 
         _serverState = serverState;
     }
@@ -144,11 +145,18 @@ public sealed class PlayersManager : IDisposable {
         return Task.CompletedTask;
     }
 
+    public Task EliminatePlayer(int playerId) {
+        _playersByConnectionId[playerId].IsEliminated = true;
+        Console.WriteLine($"Player {playerId} eliminated");
+        return Task.CompletedTask;
+    }
+
     public void Dispose() {
         _connectionsManager.OnConnectionCreated -= HandleNewPlayerConnection;
         _messageHandler.OnSeedNetworkMessageReceived -= SetPlayerSeed;
         _messageHandler.OnUndoPlayNetworkMessageReceived -= UndoPlay;
         _messageHandler.OnCellIdMessageReceived -= SavePlayerPlay;
         _messageHandler.OnBoardFinishedNetworkMessageReceived -= TrackBoardFinished;
+        _messageHandler.OnPlayerEliminatedNetworkMessageReceived -= EliminatePlayer;
     }
 }

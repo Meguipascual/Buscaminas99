@@ -112,6 +112,10 @@ public class ClientManager : MonoBehaviour {
         SendEmptyMessage(NetworkMessageTypes.BoardFinished);
     }
 
+    public void NotifyPlayerEliminated() {
+        SendEmptyMessage(NetworkMessageTypes.PlayerEliminated);
+    }
+
     private void SendEmptyMessage(NetworkMessageTypes messageType) {
         var message = new EmptyNetworkMessage();
         message.SetNetworkMessageType(messageType);

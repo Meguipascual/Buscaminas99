@@ -17,6 +17,8 @@ public class MessageHandler : IDisposable {
     public event CellIdNetworkMessageReceivedDelegate OnCellIdMessageReceived = null!;
     public delegate Task BoardFinishedNetworkMessageReceivedDelegate(int connectionId);
     public event BoardFinishedNetworkMessageReceivedDelegate OnBoardFinishedNetworkMessageReceived = null!;
+    public delegate Task PlayerEliminatedNetworkMessageReceivedDelegate(int connectionId);
+    public event PlayerEliminatedNetworkMessageReceivedDelegate OnPlayerEliminatedNetworkMessageReceived = null!;
     
     public MessageHandler(ConnectionsManager connectionsManager, ServerState serverState) {
         _connectionsManager = connectionsManager;
@@ -52,6 +54,9 @@ public class MessageHandler : IDisposable {
                 break;
             case NetworkMessageTypes.BoardFinished:
                 OnBoardFinishedNetworkMessageReceived?.Invoke(connectionId);
+                break;
+            case NetworkMessageTypes.PlayerEliminated:
+                OnPlayerEliminatedNetworkMessageReceived?.Invoke(connectionId);
                 break;
             default: 
                 Console.WriteLine($"Invalid message tag received: {messageReader.Tag}");
