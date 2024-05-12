@@ -11,8 +11,7 @@ public class RivalSeedNetworkMessage : NetworkMessage<RivalSeedNetworkMessage>
         messageWriter.Write(ConnectionId);
     }
 
-    protected override void FromMessageReaderImpl(MessageReader messageReader)
-    {
+    protected override void FromMessageReaderImpl(MessageReader messageReader) {
         Seed = messageReader.ReadInt32();
         ConnectionId = messageReader.ReadInt32();
     }

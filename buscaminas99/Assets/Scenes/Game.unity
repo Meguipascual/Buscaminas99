@@ -168,7 +168,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 397.1, y: 508.4}
+  m_AnchoredPosition: {x: 674.36, y: 508.4}
   m_SizeDelta: {x: 100, y: 12}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &498362795
@@ -484,7 +484,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4332423891881921943, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 37.7
+      value: 39.72
       objectReference: {fileID: 0}
     - target: {fileID: 4332423891881921943, guid: 93fd90eced10d574a88499c2eed349e9, type: 3}
       propertyPath: m_LocalPosition.y
@@ -666,7 +666,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 396.5, y: 469.82}
+  m_AnchoredPosition: {x: 674.36, y: 469.82}
   m_SizeDelta: {x: 100, y: 12}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &822023824
@@ -1012,7 +1012,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8086302885604324312, guid: 071aa7a788180d946b43dfd623cc619a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.75
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8086302885604324312, guid: 071aa7a788180d946b43dfd623cc619a, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1221,8 +1221,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerIdText: {fileID: 549977740}
   _scoresText: {fileID: 822023824}
-  rival0BoardManager: {fileID: 1666411067}
-  rival1BoardManager: {fileID: 710201592}
+  _rival0BoardManager: {fileID: 1666411067}
+  _rival1BoardManager: {fileID: 710201592}
 --- !u!4 &1213671881
 Transform:
   m_ObjectHideFlags: 0

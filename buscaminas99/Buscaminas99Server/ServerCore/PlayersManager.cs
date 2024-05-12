@@ -40,14 +40,17 @@ public sealed class PlayersManager : IDisposable {
 
     private async Task HandleNewPlayerConnection(int connectionId)
     {
-        await BroadcastExistingPlayerSeeds(connectionId);
         await CreatePlayer(connectionId);
     }
 
     private Task BroadcastExistingPlayerSeeds(int connectionId) {
-        foreach(var keyValuePair in _playersByConnectionId)
+        foreach(var keyValuePair in _playersByConnectionId.Where(kvp => kvp.Key != connectionId))
         {
-            var message = new RivalSeedNetworkMessage { ConnectionId = keyValuePair.Key, Seed = keyValuePair.Value.Seed!.Value };
+            var message = new RivalSeedNetworkMessage {
+                ConnectionId = keyValuePair.Key, 
+                Seed = keyValuePair.Value.Seed!.Value
+            };
+            Console.WriteLine($"Broadcasting player {keyValuePair.Key} seed to player {connectionId}");
             _connectionsManager.SendMessageToConnection(connectionId, message);
         }
 
@@ -82,6 +85,8 @@ public sealed class PlayersManager : IDisposable {
         foreach (var rivalPlayer in _playersByConnectionId.Values.Where(p => p.PlayerId != connectionId)) {
             _connectionsManager.SendMessageToConnection(connectionId, new NewPlayerConnectedNetworkMessage{ PlayerId = rivalPlayer.PlayerId });
         }
+        await BroadcastExistingPlayerSeeds(connectionId);
+        
         await OnPlayerAdded.Invoke(connectionId);
     }
 

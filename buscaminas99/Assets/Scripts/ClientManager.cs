@@ -13,17 +13,16 @@ using UnityEngine.Serialization;
 public class ClientManager : MonoBehaviour {
     [SerializeField] private TMP_Text _playerIdText;
     [SerializeField] private TMP_Text _scoresText;
-    [FormerlySerializedAs("rival0BoardManager")] [SerializeField] private BoardManager _rival0BoardManager;
-    [FormerlySerializedAs("rival1BoardManager")] [SerializeField] private BoardManager _rival1BoardManager;
+    [SerializeField] private BoardManager _rival0BoardManager;
+    [SerializeField] private BoardManager _rival1BoardManager;
 
     private GameManager _gameManager;
     
     private UnityUdpClientConnection clientConnection;
-    private Queue<int> cellIdsToProcess = new Queue<int>();
+    private Queue<RivalCellIdNetworkMessage> cellIdsToProcess = new Queue<RivalCellIdNetworkMessage>();
     private Queue<INetworkMessage> unsentMessages = new Queue<INetworkMessage>();
     private ConcurrentQueue<INetworkMessage> pendingReceivedMessages = new ConcurrentQueue<INetworkMessage>();
     private bool mustRestartScene;
-    private int? rivalSeed;
     private int _playerId = -1;
     private Dictionary<int, Player> _playersById = new Dictionary<int, Player>();
     private Dictionary<int, BoardManager> _boardsByPlayerId = new Dictionary<int, BoardManager>();
@@ -53,13 +52,6 @@ public class ClientManager : MonoBehaviour {
 
     private void Update()
     {
-        if (rivalSeed.HasValue) {
-            _rival0BoardManager.Seed = rivalSeed.Value;
-            _rival0BoardManager.Reset();
-            _rival0BoardManager.GenerateBombs();
-            rivalSeed = null;
-        }
-
         SendPendingMessages();
         ProcessRivalCellIds();
         
@@ -90,8 +82,9 @@ public class ClientManager : MonoBehaviour {
     {
         while (cellIdsToProcess.Count > 0)
         {
-            var cellId = cellIdsToProcess.Dequeue();
-            var cell = _rival0BoardManager.GetCell(cellId);
+            var message = cellIdsToProcess.Dequeue();
+            var board = _boardsByPlayerId[message.ConnectionId];
+            var cell = board.GetCell(message.CellId);
             cell.UseCell();
         }
         cellIdsToProcess.Clear();
@@ -150,12 +143,12 @@ public class ClientManager : MonoBehaviour {
         {
             case NetworkMessageTypes.RivalSeed: 
                 var rivalSeedMessage = RivalSeedNetworkMessage.FromMessageReader(messageReader);
-                rivalSeed = rivalSeedMessage.Seed;
+                pendingReceivedMessages.Enqueue(rivalSeedMessage);
                 Debug.Log($"Rival Seed received: {rivalSeedMessage.Seed}");
                 break;
             case NetworkMessageTypes.RivalCellId:
                 var rivalCellIdMessage = RivalCellIdNetworkMessage.FromMessageReader(messageReader);
-                cellIdsToProcess.Enqueue(rivalCellIdMessage.CellId);
+                cellIdsToProcess.Enqueue(rivalCellIdMessage);
                 Debug.Log($"Rival Cell Id received: {rivalCellIdMessage.CellId}");
                 break;
             case NetworkMessageTypes.ResetGame:
@@ -229,6 +222,14 @@ public class ClientManager : MonoBehaviour {
                 AddPlayer(connectionACKMessage.PlayerId);
                 _playerIdText.text = $"Player {_playerId}";
                 Debug.Log($"Player ConnectedACK Id Received: {_playerId}");
+                break;
+            case NetworkMessageTypes.RivalSeed:
+                var rivalSeedMessage = (RivalSeedNetworkMessage)networkMessage;
+                var board = _boardsByPlayerId[rivalSeedMessage.ConnectionId];
+                board.Seed = rivalSeedMessage.Seed;
+                board.Reset();
+                board.GenerateBombs();
+                _playersById[rivalSeedMessage.ConnectionId].Seed = rivalSeedMessage.Seed;
                 break;
             case NetworkMessageTypes.ScoreUpdated:
                 var scoreUpdatedMessage = (ScoreUpdatedNetworkMessage)networkMessage;
