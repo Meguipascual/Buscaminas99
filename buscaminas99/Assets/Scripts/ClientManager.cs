@@ -7,7 +7,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using TMPro;
-using TMPro.EditorUtilities;
 using UnityEngine.SceneManagement;
 
 public class ClientManager : MonoBehaviour {
@@ -113,6 +112,7 @@ public class ClientManager : MonoBehaviour {
     }
 
     public void NotifyPlayerEliminated() {
+        _playersById[_playerId].IsEliminated = true;
         SendEmptyMessage(NetworkMessageTypes.PlayerEliminated);
     }
 
@@ -188,7 +188,7 @@ public class ClientManager : MonoBehaviour {
                 break;
             case NetworkMessageTypes.RivalEliminated:
                 var rivalEliminatedMessage = RivalEliminatedNetworkMessage.FromMessageReader(messageReader);
-                Debug.Log($"Rival {rivalEliminatedMessage.PlayerId} eliminated");
+                pendingReceivedMessages.Enqueue(rivalEliminatedMessage);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
@@ -244,6 +244,12 @@ public class ClientManager : MonoBehaviour {
                 }
                 SetEndOfGameScoresText();
                 break;
+            case NetworkMessageTypes.RivalEliminated:
+                var rivalEliminatedMessage = (RivalEliminatedNetworkMessage)networkMessage;
+                _playersById[rivalEliminatedMessage.PlayerId].IsEliminated = true;
+                UpdateScoresText();
+                Debug.Log($"Rival {rivalEliminatedMessage.PlayerId} eliminated");
+                break;
             default: throw new ArgumentOutOfRangeException(nameof(networkMessage.NetworkMessageType));
         }
     }
@@ -260,6 +266,9 @@ public class ClientManager : MonoBehaviour {
         var scoresText = string.Empty;
         var playersSortedByScore = _playersById.Values.OrderByDescending(p => p.Score);
         foreach (var player in playersSortedByScore) {
+            if (player.IsEliminated) {
+                scoresText += "[ELIMINATED] ";
+            }
             scoresText += $"Player {player.PlayerId} - Score: {player.Score}{Environment.NewLine}";
         }
         _scoresText.text = scoresText;
