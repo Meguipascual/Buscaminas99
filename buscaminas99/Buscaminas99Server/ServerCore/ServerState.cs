@@ -2,7 +2,7 @@ namespace ServerCore;
 
 public class ServerState {
     
-    public const int GameDurationSeconds = 60;
+    public const int GameDurationSeconds = 300;
     
     public long StartTimestamp { get; private set; }
     public long EndTimestamp => StartTimestamp + GameDurationSeconds;

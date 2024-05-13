@@ -171,10 +171,10 @@ public class Cell : MonoBehaviour
         {
             var auxX = position.x + eightVariations[i].x;
             var auxY = position.y + eightVariations[i].y;
-            if (auxX >= (_boardManager.BoardCenterPosition.x - _boardManager.BoardHalf) - GlobalConstants.FloatPrecision
-                && auxX <= (_boardManager.BoardCenterPosition.x + _boardManager.BoardHalf) + GlobalConstants.FloatPrecision
-                && auxY >= (_boardManager.BoardCenterPosition.y - _boardManager.BoardHalf) - GlobalConstants.FloatPrecision
-                && auxY <= (_boardManager.BoardCenterPosition.y + _boardManager.BoardHalf) + GlobalConstants.FloatPrecision)
+            if (auxX >= (_boardManager.BoardCenterWorldPosition.x - _boardManager.BoardHalf) - GlobalConstants.FloatPrecision
+                && auxX <= (_boardManager.BoardCenterWorldPosition.x + _boardManager.BoardHalf) + GlobalConstants.FloatPrecision
+                && auxY >= (_boardManager.BoardCenterWorldPosition.y - _boardManager.BoardHalf) - GlobalConstants.FloatPrecision
+                && auxY <= (_boardManager.BoardCenterWorldPosition.y + _boardManager.BoardHalf) + GlobalConstants.FloatPrecision)
             {
                 yield return position + eightVariations[i];
             }

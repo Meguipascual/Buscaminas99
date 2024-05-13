@@ -9,7 +9,7 @@ public sealed class ConnectionsManager : IDisposable {
     private const int Port = 6501;
 
     private UdpConnectionListener _connectionListener = null!;
-    private int _nextConnectionId;
+    private int _lastConnectionId = -1;
     private readonly Dictionary<int, Connection> _connectionsById = new();
 
     public delegate Task ConnectionCreatedDelegate(int connectionId);
@@ -26,7 +26,7 @@ public sealed class ConnectionsManager : IDisposable {
     }
 
     public void Reset() {
-        _nextConnectionId = 0;
+        _lastConnectionId = -1;
         foreach (var kvp in _connectionsById) {
             kvp.Value.Disconnect("Reset game");
         }
@@ -34,15 +34,13 @@ public sealed class ConnectionsManager : IDisposable {
     }
 
     private async Task HandleNewConnection(NewConnectionEventArgs newConnectionEventArgs) {
-        var newConnectionId = _nextConnectionId; 
+        var newConnectionId = Interlocked.Increment(ref _lastConnectionId);
         Console.WriteLine(newConnectionEventArgs.Connection.EndPoint.Address + ":" + newConnectionEventArgs.Connection.EndPoint.Port);
         newConnectionEventArgs.Connection.DataReceived += async dataReceivedEventArgs => await OnMessageReceived.Invoke(newConnectionId, dataReceivedEventArgs.Message.ReadMessage());
         _connectionsById[newConnectionId] = newConnectionEventArgs.Connection; 
         await OnConnectionCreated.Invoke(newConnectionId);
         
         Console.WriteLine($"Connection {newConnectionId} created");
-
-        _nextConnectionId++;
     }
 
     public void SendMessageToConnection(int connectionId, INetworkMessage message) {
@@ -53,7 +51,7 @@ public sealed class ConnectionsManager : IDisposable {
 
     public void SendMessageToAllConnectionsExceptOne(int connectionIdToExclude, INetworkMessage networkMessage) {
         var messageWriter = networkMessage.BuildMessageWriter();
-        for (var i= 0; i < _nextConnectionId; i++)
+        for (var i= 0; i <= _lastConnectionId; i++)
         {
             if(connectionIdToExclude != i)
             {

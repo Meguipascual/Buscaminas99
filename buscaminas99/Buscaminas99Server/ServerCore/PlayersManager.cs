@@ -44,7 +44,9 @@ public sealed class PlayersManager : IDisposable {
     }
 
     private Task BroadcastExistingPlayerSeeds(int connectionId) {
-        foreach(var keyValuePair in _playersByConnectionId.Where(kvp => kvp.Key != connectionId))
+        foreach(var keyValuePair in _playersByConnectionId.Where(kvp => 
+                    kvp.Key != connectionId 
+                    && kvp.Value.Seed.HasValue))
         {
             var message = new RivalSeedNetworkMessage {
                 ConnectionId = keyValuePair.Key, 

@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 
@@ -12,7 +10,6 @@ public class BoardManager : MonoBehaviour
 {
     [SerializeField] private GameObject cellPrefab;
     [SerializeField] private Bomb bombPrefab;
-    [SerializeField] Transform boardCenter;
     [SerializeField] private TMP_Text _playerNameText;
     
     private GameManager gameManager;
@@ -24,19 +21,19 @@ public class BoardManager : MonoBehaviour
     List<int> allCellIds = new List<int>();//List of all ids 
     Dictionary<int, Cell> cellById = new Dictionary<int, Cell>();//Dictionary that relates an ID with its Cell
     private List<GameObject> _bombs = new List<GameObject>();
-    public Vector2 BoardCenterPosition { get; private set; }
     public bool IsRivalBoard => gameObject.CompareTag(Tags.RivalBoard);
     public float Scale { get; private set; }
     public float CellSize => Scale * 5;
     public float BoardHalf => CellSize * (numberOfColumns - 1) / 2;
     public bool AreBombsGenerated { get; set; }
     public int Seed { get; set; }
+    public Vector3 BoardCenterLocalPosition => Vector3.zero;
+    public Vector3 BoardCenterWorldPosition => gameObject.transform.position + BoardCenterLocalPosition;
 
     // Start is called before the first frame update
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
-        BoardCenterPosition = boardCenter.position;
         Scale = transform.localScale.x;
         
         Initialize();
@@ -90,22 +87,21 @@ public class BoardManager : MonoBehaviour
     }
 
     //Generates cells all over the table
-    void GenerateCells()
-    {
-        var initialPosition = new Vector3(BoardCenterPosition.x - BoardHalf, BoardCenterPosition.y + BoardHalf, -0.4f);
+    void GenerateCells() {
+        var initialPosition = new Vector3(BoardCenterWorldPosition.x - BoardHalf, BoardCenterWorldPosition.y + BoardHalf, -0.4f);
         var incrementX = new Vector3(CellSize, 0, 0);
         var decrementY = new Vector3(0, CellSize, 0);
-        var initialPosX = BoardCenterPosition.x - BoardHalf;
+        var initialPosX = initialPosition.x;
 
         for (int i = 0; i < numberOfColumns; i++)
         {
             for (int j = 0; j < numberOfRows; j++)
             {
-                var cell = Instantiate(cellPrefab, initialPosition, cellPrefab.transform.rotation).GetComponentInChildren<Cell>();
+                var cell = Instantiate(cellPrefab, initialPosition, cellPrefab.transform.rotation, gameObject.transform).GetComponentInChildren<Cell>();
                 cell.SetBoardManager(this);
                 cell.transform.localScale = new Vector3(
-                    transform.localScale.x * cell.transform.localScale.x,
-                    transform.localScale.y * cell.transform.localScale.y,
+                    cell.transform.localScale.x,
+                    cell.transform.localScale.y,
                     cell.transform.localScale.z);
                 initialPosition += incrementX;
             }
@@ -148,7 +144,7 @@ public class BoardManager : MonoBehaviour
             cellIdsWithBombs.Add(allCellIds[nextBombIndex]);
 
             //Generates our bomb position from its id
-            position = CalculatePosition(allCellIds[nextBombIndex]);
+            position = CalculateWorldPosition(allCellIds[nextBombIndex]);
             position.z = 0.95f;
 
             //Creates the bomb
@@ -169,9 +165,9 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Vector3 CalculatePosition(int id)
+    public Vector3 CalculateWorldPosition(int id)
     {
-        var position = new Vector3(BoardCenterPosition.x - BoardHalf, BoardCenterPosition.y + BoardHalf);
+        var position = new Vector3(BoardCenterWorldPosition.x - BoardHalf, BoardCenterWorldPosition.y + BoardHalf);
         float x = id / numberOfColumns;
         float y = id % numberOfRows;
         x *= CellSize;
@@ -229,6 +225,7 @@ public class BoardManager : MonoBehaviour
         foreach (var neighbourCellPosition in cell.CalculateEightNeighbourCellPositions())
         {
             var idNeighbourCell = GenerateId(neighbourCellPosition);
+            Debug.Log($"Revealing neighbour {idNeighbourCell} for cell {cell.Id}");
             discoverCellIds.AddRange( cellById[idNeighbourCell].DisplayBombsNear());
         }
         return discoverCellIds;
@@ -253,13 +250,13 @@ public class BoardManager : MonoBehaviour
     /// <returns></returns>
     public int GenerateId(Vector3 position)
     {
-        position.x += (BoardHalf - BoardCenterPosition.x);
-        position.y -= (BoardHalf + BoardCenterPosition.y);
+        position.x += (BoardHalf - BoardCenterWorldPosition.x);
+        position.y -= (BoardHalf + BoardCenterWorldPosition.y);
         position.y = Math.Abs(position.y);
         position.x = Math.Abs(position.x);
         position.x /= CellSize;
         position.y /= CellSize;
-        var generatedId = (int)(position.x * numberOfColumns + position.y);
+        var generatedId = (int)Math.Round(position.x * numberOfColumns + position.y);
 
         return generatedId;
     }
