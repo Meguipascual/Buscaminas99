@@ -21,4 +21,5 @@ public enum NetworkMessageTypes
     GameEnded = 15,
     PlayerEliminated = 16,
     RivalEliminated = 17,
+    DebugBoardFinished = 18,
 }

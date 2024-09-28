@@ -1,4 +1,5 @@
 using Hazel;
+using NetworkingShared.NetworkMessages;
 
 namespace ServerCore; 
 
@@ -54,6 +55,9 @@ public class MessageHandler : IDisposable {
                 break;
             case NetworkMessageTypes.PlayerEliminated:
                 OnPlayerEliminatedNetworkMessageReceived?.Invoke(connectionId);
+                break;
+            case NetworkMessageTypes.DebugBoardFinished:
+                networkMessage = DebugBoardFinishedNetworkMessage.FromMessageReader(messageReader);
                 break;
             default: 
                 Console.WriteLine($"Invalid message tag received: {messageReader.Tag}");

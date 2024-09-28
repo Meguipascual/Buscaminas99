@@ -11,6 +11,9 @@
         <Link>CellIdNetworkMessage.cs</Link>
       </Compile>
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\ConnectionACKNetworkMessage.cs" Link="ConnectionACKNetworkMessage.cs" />
+      <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\DebugBoardFinishedNetworkMessage.cs">
+        <Link>DebugBoardFinishedNetworkMessage.cs</Link>
+      </Compile>
       <Compile Include="..\..\Assets\Scripts\NetworkingShared\NetworkMessages\EmptyNetworkMessage.cs">
         <Link>EmptyNetworkMessage.cs</Link>
       </Compile>

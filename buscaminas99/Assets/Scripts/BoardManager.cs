@@ -262,18 +262,12 @@ public class BoardManager : MonoBehaviour
     }
 
     public void DebugFinishBoard() {
-        if (!gameManager.IsPlayerAlive
-            || !gameManager.IsGameActive) {
-            return;
-        }
-
         if (!AreBombsGenerated) {
             GenerateBombs();
         }
         
         foreach (var cellId in allCellIds) {
-            if (gameManager.IsPlayerAlive 
-                && !cellIdsWithBombs.Contains(cellId) 
+            if (!cellIdsWithBombs.Contains(cellId) 
                 && !cellById[cellId].IsExplored) {
                 cellById[cellId].UseCell();
             }

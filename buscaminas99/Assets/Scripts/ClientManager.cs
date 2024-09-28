@@ -6,6 +6,7 @@ using Hazel;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using NetworkingShared.NetworkMessages;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -113,16 +114,19 @@ public class ClientManager : MonoBehaviour {
         SendEmptyMessage(NetworkMessageTypes.PlayerEliminated);
     }
 
+    public void SendUndoPlayMessage() {
+        var targetPLayerId = 1 - _playerId;
+        SendMessage(new UndoPlayNetworkMessage() { TargetPlayerId = targetPLayerId });
+    }
+
+    public void SendDebugBoardFinishedMessage() {
+        SendMessage(new DebugBoardFinishedNetworkMessage{PlayerId = _playerId});
+    }
+
     private void SendEmptyMessage(NetworkMessageTypes messageType) {
         var message = new EmptyNetworkMessage();
         message.SetNetworkMessageType(messageType);
         SendMessage(message);
-    }
-
-    public void SendUndoPlayMessage()
-    {
-        var targetPLayerId = 1 - _playerId;
-        SendMessage(new UndoPlayNetworkMessage() { TargetPlayerId = targetPLayerId });
     }
 
     private void SendMessage(INetworkMessage networkMessage) {
@@ -186,6 +190,11 @@ public class ClientManager : MonoBehaviour {
             case NetworkMessageTypes.RivalEliminated:
                 var rivalEliminatedMessage = RivalEliminatedNetworkMessage.FromMessageReader(messageReader);
                 pendingReceivedMessages.Enqueue(rivalEliminatedMessage);
+                break;
+            case NetworkMessageTypes.DebugBoardFinished:
+                var debugBoardFinishedMessage = DebugBoardFinishedNetworkMessage.FromMessageReader(messageReader);
+                Debug.Log($"Player {debugBoardFinishedMessage.PlayerId} finished the board using a debug command");
+                pendingReceivedMessages.Enqueue(debugBoardFinishedMessage);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(messageReader.Tag));
         }
@@ -254,6 +263,11 @@ public class ClientManager : MonoBehaviour {
                 _playersById[rivalEliminatedMessage.PlayerId].IsEliminated = true;
                 UpdateScoresText();
                 Debug.Log($"Rival {rivalEliminatedMessage.PlayerId} eliminated");
+                break;
+            case NetworkMessageTypes.DebugBoardFinished:
+                var message = (DebugBoardFinishedNetworkMessage)networkMessage;
+                _boardsByPlayerId[message.PlayerId].DebugFinishBoard();
+                _playersById[message.PlayerId].IsEliminated = true;
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(networkMessage.NetworkMessageType));
         }

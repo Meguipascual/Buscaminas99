@@ -125,7 +125,12 @@ public class GameManager : MonoBehaviour {
     }
 
     public void DebugFinishBoard() {
+        if (!IsPlayerAlive || !IsGameActive) {
+            return;
+        }
+
         _localBoardManager.DebugFinishBoard();
+        _clientManager.SendDebugBoardFinishedMessage();
     }
 
     public void DisplayBoardFinishedText(int points) {
